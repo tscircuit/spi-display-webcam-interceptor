@@ -9,10 +9,20 @@ const pinLabels = {
   pin6: ["USB_DP_MCU"],
 } as const;
 
+const pinAttributes = {
+  pin1: { mustBeConnected: true },
+  pin2: { requiresGround: true, mustBeConnected: true },
+  pin3: { mustBeConnected: true },
+  pin4: { mustBeConnected: true },
+  pin5: { requiresPower: true, requiresVoltage: "5V", mustBeConnected: true },
+  pin6: { mustBeConnected: true },
+} as NonNullable<ChipProps<typeof pinLabels>["pinAttributes"]>;
+
 export const USBLC6_2SC6 = (props: ChipProps<typeof pinLabels>) => {
   return (
     <chip
       pinLabels={pinLabels}
+      pinAttributes={pinAttributes}
       supplierPartNumbers={{
         jlcpcb: ["C7519"],
       }}

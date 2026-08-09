@@ -108,10 +108,116 @@ const pinLabels = {
   pin105: ["GND"],
 } as const;
 
+const threeVoltThreeInputs = new Set([
+  "VDD_LP",
+  "VDD_IO_0",
+  "VDD_FLASHIO",
+  "VDD_USBPHY",
+  "VDD_IO_4",
+  "VDD_LDO",
+  "VDD_DCDCC",
+  "VDD_IO_5",
+  "VDD_IO_6",
+  "VDD_ANA",
+  "VDD_BAT",
+]);
+const coreInputs = new Set(["VDD_HP_0", "VDD_HP_1", "VDD_HP_2", "VDD_HP_3"]);
+const psramInputs = new Set(["VDD_PSRAM_0", "VDD_PSRAM_1"]);
+const powerOutputs = new Set(["VDDO_FLASH", "VDDO_PSRAM", "VDDO_3", "VDDO_4"]);
+const requiredControlPins = new Set([
+  "FLASH_CS",
+  "FLASH_Q",
+  "FLASH_WP",
+  "FLASH_HOLD",
+  "FLASH_CK",
+  "FLASH_D",
+  "USB_DM",
+  "USB_DP",
+  "FB_DCDC",
+  "EN_DCDC",
+  "XTAL_N",
+  "XTAL_P",
+  "CHIP_PU",
+]);
+
+const pinAttributes = Object.fromEntries(
+  Object.entries(pinLabels).map(([pin, labels]) => {
+    const label = labels[0];
+    if (label === "GND") {
+      return [pin, { requiresGround: true, mustBeConnected: true }];
+    }
+    if (threeVoltThreeInputs.has(label)) {
+      return [
+        pin,
+        {
+          requiresPower: true,
+          requiresVoltage: "3.3V",
+          mustBeConnected: true,
+          shouldHaveDecouplingCapacitor: true,
+        },
+      ];
+    }
+    if (coreInputs.has(label)) {
+      return [
+        pin,
+        {
+          requiresPower: true,
+          requiresVoltage: "1.1V",
+          mustBeConnected: true,
+          shouldHaveDecouplingCapacitor: true,
+        },
+      ];
+    }
+    if (psramInputs.has(label)) {
+      return [
+        pin,
+        {
+          requiresPower: true,
+          requiresVoltage: "1.9V",
+          mustBeConnected: true,
+          shouldHaveDecouplingCapacitor: true,
+        },
+      ];
+    }
+    if (
+      label === "VDD_MIPI_DPHY" ||
+      label.startsWith("DSI_") ||
+      label.startsWith("CSI_")
+    ) {
+      return [pin, { doNotConnect: true }];
+    }
+    if (powerOutputs.has(label)) {
+      return [pin, { providesPower: true, mustBeConnected: true }];
+    }
+    if (label.startsWith("GPIO")) {
+      return [pin, { isGpio: true }];
+    }
+
+    const capability =
+      label === "FLASH_CS"
+        ? "spi_cs"
+        : label === "FLASH_CK"
+          ? "spi_sck"
+          : label === "FLASH_D"
+            ? "spi_mosi"
+            : label === "FLASH_Q"
+              ? "spi_miso"
+              : undefined;
+    return [
+      pin,
+      {
+        ...(capability ? { capabilities: [capability] } : {}),
+        ...(requiredControlPins.has(label) ? { mustBeConnected: true } : {}),
+      },
+    ];
+  }),
+) as NonNullable<ChipProps<typeof pinLabels>["pinAttributes"]>;
+
 export const ESP32_P4NRW32X = (props: ChipProps<typeof pinLabels>) => {
   return (
     <chip
       pinLabels={pinLabels}
+      pinAttributes={pinAttributes}
       supplierPartNumbers={{
         jlcpcb: ["C54540373"],
       }}

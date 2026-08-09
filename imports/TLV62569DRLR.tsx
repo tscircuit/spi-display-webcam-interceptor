@@ -9,10 +9,20 @@ const pinLabels = {
   pin6: ["pin6"]
 } as const
 
+const pinAttributes = {
+  pin1: { mustBeConnected: true },
+  pin2: { requiresGround: true, mustBeConnected: true },
+  pin3: { requiresPower: true, mustBeConnected: true },
+  pin4: { mustBeConnected: true },
+  pin5: { mustBeConnected: true },
+  pin6: { requiresGround: true, mustBeConnected: true },
+} as NonNullable<ChipProps<typeof pinLabels>["pinAttributes"]>
+
 export const TLV62569DRLR = (props: ChipProps<typeof pinLabels>) => {
   return (
     <chip
       pinLabels={pinLabels}
+      pinAttributes={pinAttributes}
       supplierPartNumbers={{
   "jlcpcb": [
     "C163217"

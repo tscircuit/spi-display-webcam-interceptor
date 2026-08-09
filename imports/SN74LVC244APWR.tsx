@@ -23,10 +23,22 @@ const pinLabels = {
   pin20: ["VCC"]
 } as const
 
+const pinAttributes = Object.fromEntries(
+  Object.keys(pinLabels).map((pin) => [
+    pin,
+    pin === "pin20"
+      ? { requiresPower: true, requiresVoltage: "3.3V", mustBeConnected: true }
+      : pin === "pin10"
+        ? { requiresGround: true, mustBeConnected: true }
+        : { mustBeConnected: true },
+  ]),
+) as NonNullable<ChipProps<typeof pinLabels>["pinAttributes"]>
+
 export const SN74LVC244APWR = (props: ChipProps<typeof pinLabels>) => {
   return (
     <chip
       pinLabels={pinLabels}
+      pinAttributes={pinAttributes}
       supplierPartNumbers={{
   "jlcpcb": [
     "C7668"

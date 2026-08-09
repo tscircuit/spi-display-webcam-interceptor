@@ -1,4 +1,5 @@
 import { SmdUsbC } from "@tsci/seveibar.smd-usb-c";
+import { AutoroutingPipelineSolver } from "@tscircuit/capacity-autorouter";
 import { cloneElement, Fragment } from "react";
 
 import { DFE201210U_2R2M_P2 } from "./imports/DFE201210U_2R2M_P2";
@@ -12,9 +13,53 @@ import { W25Q128JVSIQ } from "./imports/W25Q128JVSIQ";
 
 type SmdUsbCProps = Parameters<typeof SmdUsbC>[0];
 
+const usbCPinAttributes = {
+  1: { requiresGround: true, mustBeConnected: true },
+  2: { requiresGround: true, mustBeConnected: true },
+  3: {
+    providesPower: true,
+    requiresPower: true,
+    providesVoltage: "5V",
+    requiresVoltage: "5V",
+    mustBeConnected: true,
+  },
+  4: {
+    providesPower: true,
+    requiresPower: true,
+    providesVoltage: "5V",
+    requiresVoltage: "5V",
+    mustBeConnected: true,
+  },
+  5: { doNotConnect: true },
+  6: { mustBeConnected: true },
+  7: { mustBeConnected: true },
+  8: { mustBeConnected: true },
+  9: { mustBeConnected: true },
+  10: { mustBeConnected: true },
+  11: { doNotConnect: true },
+  12: { mustBeConnected: true },
+  13: {
+    providesPower: true,
+    requiresPower: true,
+    providesVoltage: "5V",
+    requiresVoltage: "5V",
+    mustBeConnected: true,
+  },
+  14: {
+    providesPower: true,
+    requiresPower: true,
+    providesVoltage: "5V",
+    requiresVoltage: "5V",
+    mustBeConnected: true,
+  },
+  15: { requiresGround: true, mustBeConnected: true },
+  16: { requiresGround: true, mustBeConnected: true },
+} as NonNullable<SmdUsbCProps["pinAttributes"]>;
+
 /** Keep the published USB-C footprint while arranging its built-in symbol. */
 const SmdUsbCWithFixedSchematic = (props: SmdUsbCProps) =>
   cloneElement(SmdUsbC(props), {
+    pinAttributes: props.pinAttributes ?? usbCPinAttributes,
     schPortArrangement: {
       leftSide: { pins: [], direction: "top-to-bottom" },
       rightSide: {
@@ -132,35 +177,39 @@ const p4ThreeVThreeCaps = [
   { pin: 21, name: "C_IO0", x: -5.8, y: 0.4 },
   { pin: 62, name: "C_IO4", x: 9.2, y: 2 },
   { pin: 85, name: "C_IO5", x: 4.2, y: 10 },
-  { pin: 96, name: "C_IO6", x: 1.1, y: 11.2 },
+  { pin: 96, name: "C_IO6", x: 4, y: 12 },
   { pin: 75, name: "C_LDO", x: 13, y: 6.2 },
   { pin: 77, name: "C_DCDCC", x: 12, y: 11.8 },
-  { pin: 101, name: "C_ANA", x: -1.8, y: 10 },
-  { pin: 102, name: "C_BAT_100N", x: -3.8, y: 10 },
+  { pin: 101, name: "C_ANA", x: -4.5, y: 14.5 },
+  { pin: 102, name: "C_BAT_100N", x: -7.5, y: 14.5 },
 ] as const;
 
 const p4CoreCaps = [
   { pin: 26, name: "C_HP0", x: -5.8, y: -1.5 },
   { pin: 54, name: "C_HP1", x: 9.2, y: -1 },
   { pin: 76, name: "C_HP2", x: 11.5, y: 7.5 },
-  { pin: 91, name: "C_HP3", x: 2.2, y: 10 },
+  { pin: 91, name: "C_HP3", x: 2.2, y: 9.2 },
 ] as const;
 
 // Local MCU coordinates for a 0.45 mm outward dogbone from each power pad.
 const p4PowerDogboneOffsets: Record<number, { x: number; y: number }> = {
-  9: { x: -5.45, y: 1.575054 },
+  9: { x: -6.2, y: 1.575054 },
   21: { x: -5.45, y: -2.62509 },
   26: { x: -5.45, y: -4.374896 },
   54: { x: 5.45, y: -4.024884 },
   62: { x: 5.45, y: -1.225042 },
-  75: { x: 5.45, y: 3.325114 },
-  76: { x: 5.45, y: 3.675126 },
-  77: { x: 5.45, y: 4.024884 },
+  // Stagger the three adjacent right-side rails onto a 0.75 mm grid so
+  // ordinary 0.60/0.30 mm through vias retain 0.10 mm copper clearance.
+  75: { x: 6.2, y: 3.325114 },
+  76: { x: 6.9, y: 3.325114 },
+  77: { x: 6.9, y: 4.025114 },
   85: { x: 2.275078, y: 5.45 },
   91: { x: 0.175006, y: 5.45 },
   96: { x: -1.575054, y: 5.45 },
-  101: { x: -3.325114, y: 5.45 },
-  102: { x: -3.675126, y: 5.45 },
+  // Fan these adjacent top-edge supply pins apart and keep the crystal
+  // corridor clear.
+  101: { x: -4.2, y: 5.45 },
+  102: { x: -5.0, y: 5.45 },
 };
 
 type PlaneNet = "GND" | "V3V3" | "VBUS" | "V1V2";
@@ -179,7 +228,7 @@ const PlaneDrop = ({ from, net, layer, padOffset, width }: PlaneDropProps) => (
     to={`net.${net}`}
     width={width}
     pcbPathRelativeTo={from}
-    pcbPath={[{ ...padOffset, via: true, toLayer: layer }]}
+    pcbPath={[{ ...padOffset, via: true, toLayer: "bottom" }]}
   />
 );
 
@@ -201,7 +250,7 @@ const Drop0402 = ({
     net={net}
     layer={layer}
     width={width}
-    padOffset={{ x: pin === 1 ? -0.51 : 0.51, y: 0 }}
+    padOffset={{ x: pin === 1 ? -1.05 : 1.05, y: 0 }}
   />
 );
 
@@ -223,7 +272,7 @@ const Drop0603 = ({
     net={net}
     layer={layer}
     width={width}
-    padOffset={{ x: pin === 1 ? -0.825 : 0.825, y: 0 }}
+    padOffset={{ x: pin === 1 ? -1.5 : 1.5, y: 0 }}
   />
 );
 
@@ -314,14 +363,152 @@ const completedPlaneAutorouter = {
   },
 };
 
+const flashEscapeTraceIds = new Set([
+  "source_trace_101",
+]);
+
+const normalizeToPlatedThroughVias = (traces: any[]) =>
+  traces.map((trace) => {
+    const connectionName = trace.connection_name ?? trace.connectionName;
+    const route = [...trace.route];
+
+    // The ESP32-P4's 0.35 mm-pitch QSPI pads need a short perpendicular
+    // neck before the route turns. Capacity's diagonal final segments can
+    // otherwise graze the neighboring pad even with a 0.10 mm trace.
+    if (flashEscapeTraceIds.has(connectionName) && route.length >= 2) {
+      const end = route[route.length - 1];
+      if (end?.route_type === "wire") {
+        let dogboneStartIndex = route.length - 2;
+        while (
+          dogboneStartIndex > 0 &&
+          route[dogboneStartIndex].y > end.y - 0.45
+        ) {
+          dogboneStartIndex -= 1;
+        }
+        const dogboneStart = route[dogboneStartIndex];
+        route.splice(
+          dogboneStartIndex + 1,
+          route.length,
+          {
+            ...end,
+            x: dogboneStart.x,
+            y: end.y - 0.3,
+            end_pcb_port_id: undefined,
+          },
+          {
+            ...end,
+            x: end.x,
+            y: end.y - 0.3,
+            end_pcb_port_id: undefined,
+          },
+          end,
+        );
+      }
+    }
+    const nearMcuShiftX =
+      connectionName === "source_trace_33"
+        ? -0.5
+        : connectionName === "source_trace_34"
+          ? -0.6
+          : 0;
+    const nearMcuVia = route.find(
+      (point: any) =>
+        nearMcuShiftX !== 0 &&
+        point.route_type === "via" &&
+        point.x > -3 &&
+        point.y > 3,
+    );
+
+    return {
+      ...trace,
+      route: route.map((point: any) => {
+        const isNearMcuViaPoint =
+          nearMcuVia &&
+          Math.abs(point.x - nearMcuVia.x) < 0.001 &&
+          Math.abs(point.y - nearMcuVia.y) < 0.001;
+        const adjustedPoint = isNearMcuViaPoint
+          ? { ...point, x: point.x + nearMcuShiftX }
+          : point;
+        const neckedPoint =
+          connectionName === "source_trace_111" &&
+          adjustedPoint.route_type === "wire"
+            ? { ...adjustedPoint, width: 0.1 }
+            : adjustedPoint;
+
+        return neckedPoint.route_type === "via"
+          ? {
+              ...neckedPoint,
+              from_layer: "top",
+              to_layer: "bottom",
+              via_diameter: 0.6,
+              via_hole_diameter: 0.3,
+            }
+          : neckedPoint;
+      }),
+    };
+  });
+
+const platedThroughAutorouter = {
+  groupMode: "subcircuit" as const,
+  allowViaInPad: false,
+  algorithmFn: async (simpleRouteJson: any) => {
+    const solver = new AutoroutingPipelineSolver(
+      {
+        ...simpleRouteJson,
+        allowViaInPad: false,
+        minViaHoleDiameter: 0.3,
+        minViaPadDiameter: 0.6,
+        min_via_hole_diameter: 0.3,
+        min_via_pad_diameter: 0.6,
+      },
+      { effort: 10 },
+    );
+    const listeners: Record<string, Array<(event: any) => void>> = {};
+    let stopped = false;
+
+    return {
+      on(event: string, listener: (event: any) => void) {
+        (listeners[event] ??= []).push(listener);
+        return this;
+      },
+      async start() {
+        try {
+          let steps = 0;
+          while (!solver.solved && !solver.failed && !stopped) {
+            solver.step();
+            steps += 1;
+            if (steps % 20_000 === 0) {
+              for (const listener of listeners.progress ?? []) {
+                listener({ steps, progress: 0 });
+              }
+              await new Promise<void>((resolve) => setTimeout(resolve, 0));
+            }
+          }
+          if (stopped) return;
+          if (solver.failed) throw solver.error ?? new Error("Autorouting failed");
+          const traces = normalizeToPlatedThroughVias(
+            solver.getOutputSimpleRouteJson().traces ?? [],
+          );
+          for (const listener of listeners.complete ?? []) listener({ traces });
+        } catch (error) {
+          for (const listener of listeners.error ?? []) listener({ error });
+        }
+      },
+      stop() {
+        stopped = true;
+      },
+    };
+  },
+};
+
 export default () => (
   <board
     width="68mm"
     height="54mm"
     layers={4}
-    autorouter="auto"
+    autorouter={platedThroughAutorouter}
     isViaInPadAllowed
-    pcbStyle={{ viaPadDiameter: "0.3mm", viaHoleDiameter: "0.2mm" }}
+    pcbStyle={{ viaPadDiameter: "0.6mm", viaHoleDiameter: "0.3mm" }}
   >
     <net name="GND" isGroundNet routingPhaseIndex={4} />
     <net name="V3V3" isPowerNet routingPhaseIndex={5} />
@@ -444,7 +631,7 @@ export default () => (
       width="48mm"
       height="44mm"
       padding="3mm"
-      autorouter="auto"
+      autorouter={platedThroughAutorouter}
       autorouterEffortLevel="10x"
     >
       <ESP32_P4NRW32X name="U_MCU" pcbX={2} pcbY={3} schHeight={10.6} />
@@ -679,7 +866,7 @@ export default () => (
           key={`tap-out-${channel.headerPin}`}
           from={`.U_BUF > .pin${channel.bufferOut}`}
           to={`.U_MCU > .pin${channel.mcuPin}`}
-          width="0.2mm"
+          width="0.1mm"
         />
       ))}
       {captureChannels.map((channel, index) => (
@@ -881,36 +1068,16 @@ export default () => (
         from=".U_MCU > .pin79"
         to=".U_CORE_BUCK > .pin5"
         width="0.15mm"
-        pcbPathRelativeTo=".U_CORE_BUCK > .pin5"
-        pcbPath={[
-          { x: 0, y: 2.5 },
-          { x: 1.5, y: 2.5 },
-          { x: 1.5, y: 2.5, via: true, toLayer: "bottom" },
-          { x: 1.5, y: 2.5 },
-        ]}
       />
       <trace
         from=".U_MCU > .pin78"
         to=".U_CORE_BUCK > .pin1"
         width="0.15mm"
-        pcbPathRelativeTo=".U_CORE_BUCK > .pin1"
-        pcbPath={[
-          { x: -0.5, y: -1.5 },
-          { x: -1.5, y: -1.5 },
-          { x: -1.5, y: -1.5, via: true, toLayer: "bottom" },
-          { x: -1.5, y: -1.5 },
-        ]}
       />
       <trace
         from=".U_CORE_BUCK > .pin4"
         to=".L_CORE > .pin1"
         width="0.18mm"
-        pcbPathRelativeTo=".U_CORE_BUCK > .pin4"
-        pcbPath={[
-          { x: 0.5, y: 1.5 },
-          { x: 3.0338, y: 1.5 },
-          { x: 3.0338, y: 0 },
-        ]}
       />
       <trace from=".L_CORE > .pin2" to=".C_CORE_OUT > .pin1" width="0.5mm" />
       <trace from=".L_CORE > .pin2" to=".R_CORE_TOP > .pin1" />
@@ -923,14 +1090,14 @@ export default () => (
         from=".C_CORE_OUT > .pin1"
         net="V1V2"
         layer="bottom"
-        padOffset={{ x: -1.05, y: 0 }}
+        padOffset={{ x: -1.8, y: 0 }}
         width="0.5mm"
       />
       <PlaneDrop
         from=".C_CORE_OUT > .pin2"
         net="GND"
         layer="inner1"
-        padOffset={{ x: 1.05, y: 0 }}
+        padOffset={{ x: 1.8, y: 0 }}
         width="0.5mm"
       />
 
@@ -943,12 +1110,16 @@ export default () => (
         schX={-5.5}
         schY={-2}
       />
-      <trace from=".U_FLASH > .pin1" to=".U_MCU > .pin27" />
-      <trace from=".U_FLASH > .pin2" to=".U_MCU > .pin28" />
-      <trace from=".U_FLASH > .pin3" to=".U_MCU > .pin29" />
-      <trace from=".U_FLASH > .pin5" to=".U_MCU > .pin33" />
-      <trace from=".U_FLASH > .pin6" to=".U_MCU > .pin32" />
-      <trace from=".U_FLASH > .pin7" to=".U_MCU > .pin31" />
+      <trace from=".U_FLASH > .pin1" to=".U_MCU > .pin27" width="0.1mm" />
+      <trace from=".U_FLASH > .pin2" to=".U_MCU > .pin28" width="0.1mm" />
+      <trace from=".U_FLASH > .pin3" to=".U_MCU > .pin29" width="0.1mm" />
+      <trace from=".U_FLASH > .pin5" to=".U_MCU > .pin33" width="0.1mm" />
+      <trace
+        from=".U_FLASH > .pin6"
+        to=".U_MCU > .pin32"
+        width="0.1mm"
+      />
+      <trace from=".U_FLASH > .pin7" to=".U_MCU > .pin31" width="0.1mm" />
       <trace from=".U_MCU > .pin71" to=".U_MCU > .pin30" width="0.3mm" />
       <trace from=".U_MCU > .pin30" to=".U_FLASH > .pin8" width="0.3mm" />
       <resistor
@@ -998,7 +1169,11 @@ export default () => (
         schY={-4}
         schOrientation="vertical"
       />
-      <trace from=".C_FLASHIO_1U > .pin1" to=".U_MCU > .pin30" />
+      <trace
+        from=".C_FLASHIO_1U > .pin1"
+        to=".U_MCU > .pin30"
+        width="0.1mm"
+      />
       <Drop0402 from=".C_FLASHIO_1U > .pin2" pin={2} net="GND" layer="inner1" />
 
       <E3SB40E000030E
@@ -1042,8 +1217,9 @@ export default () => (
         pcbPathRelativeTo=".U_MCU > .pin100"
         pcbPath={[
           { x: -2.98, y: 6.1 },
-          { x: -4.8, y: 6.35 },
-          { x: -4.8, y: 7.65 },
+          { x: -2.98, y: 7.5 },
+          { x: -5.1, y: 7.5 },
+          { x: -5.1, y: 8.45 },
         ]}
       />
       <trace
@@ -1052,10 +1228,8 @@ export default () => (
         pcbPathRelativeTo=".U_MCU > .pin99"
         pcbPath={[
           { x: -2.63, y: 6.1 },
-          { x: -2.8, y: 7.65 },
-          { x: -1.95, y: 7.65 },
-          { x: -1.95, y: 8 },
-          { x: -1.95, y: 10.15 },
+          { x: -1.7, y: 7.5 },
+          { x: -1.7, y: 10.15 },
         ]}
       />
       <trace from=".C_XTAL_P > .pin1" to=".Y1 > .pin1" />
@@ -1064,13 +1238,13 @@ export default () => (
         from=".Y1 > .pin2"
         net="GND"
         layer="inner1"
-        padOffset={{ x: 1.1, y: -1.3 }}
+        padOffset={{ x: 2.5, y: -1.8 }}
       />
       <PlaneDrop
         from=".Y1 > .pin4"
         net="GND"
         layer="inner1"
-        padOffset={{ x: -1.6, y: 0.85 }}
+        padOffset={{ x: -2.2, y: 1.7 }}
       />
       <Drop0402 from=".C_XTAL_P > .pin2" pin={2} net="GND" layer="inner1" />
       <Drop0402 from=".C_XTAL_N > .pin2" pin={2} net="GND" layer="inner1" />
@@ -1114,7 +1288,7 @@ export default () => (
         maxDecouplingTraceLength={10}
         footprint="0402"
         pcbX={9}
-        pcbY={4.7}
+        pcbY={4.5}
         schSheetName="POWER"
         schSectionName="MCU_POWER"
         schX={8.4}
@@ -1127,7 +1301,7 @@ export default () => (
         maxDecouplingTraceLength={10}
         footprint="0402"
         pcbX={8.8}
-        pcbY={6}
+        pcbY={5.5}
         schSheetName="POWER"
         schSectionName="MCU_POWER"
         schX={11.2}
@@ -1178,6 +1352,13 @@ export default () => (
               pin={2}
               net="GND"
               layer="inner1"
+            />
+          ) : index === 0 ? (
+            <PlaneDrop
+              from={`.${cap.name} > .pin2`}
+              net="GND"
+              layer="inner1"
+              padOffset={{ x: 1.05, y: -0.8 }}
             />
           ) : (
             <Drop0402
@@ -1266,7 +1447,7 @@ export default () => (
         from=".SW_BOOT > .pin2"
         net="GND"
         layer="inner1"
-        padOffset={{ x: -2.100072, y: 1.074928 }}
+        padOffset={{ x: -2.100072, y: 1.85 }}
       />
 
       <SKRPACE010
@@ -1315,7 +1496,7 @@ export default () => (
         from=".SW_RESET > .pin2"
         net="GND"
         layer="inner1"
-        padOffset={{ x: -2.100072, y: 1.074928 }}
+        padOffset={{ x: -2.100072, y: 1.85 }}
       />
 
       <SmdUsbCWithFixedSchematic
@@ -1329,21 +1510,34 @@ export default () => (
         schWidth={1.575}
         schHeight={2.6}
       />
-      {[
-        { pin: 1, x: -3.350006, y: 2.44908705 },
-        { pin: 2, x: -3.050032, y: 2.44908705 },
-        { pin: 15, x: 3.350006, y: 2.44908705 },
-        { pin: 16, x: 3.050032, y: 2.44908705 },
-      ].map((ground) => (
-        <PlaneDrop
-          key={`usb-gnd-${ground.pin}`}
-          from={`.J_USB > .pin${ground.pin}`}
-          net="GND"
-          layer="inner1"
-          width="0.5mm"
-          padOffset={{ x: ground.x, y: ground.y }}
-        />
-      ))}
+      <trace
+        from=".J_USB > .pin2"
+        to=".J_USB > .pin1"
+        width="0.5mm"
+        pcbPathRelativeTo=".J_USB > .pin2"
+        pcbPath={[{ x: -3.350006, y: 2.44908705 }]}
+      />
+      <trace
+        from=".J_USB > .pin16"
+        to=".J_USB > .pin15"
+        width="0.5mm"
+        pcbPathRelativeTo=".J_USB > .pin16"
+        pcbPath={[{ x: 3.350006, y: 2.44908705 }]}
+      />
+      <PlaneDrop
+        from=".J_USB > .pin1"
+        net="GND"
+        layer="inner1"
+        width="0.5mm"
+        padOffset={{ x: -4.2, y: 3.2 }}
+      />
+      <PlaneDrop
+        from=".J_USB > .pin15"
+        net="GND"
+        layer="inner1"
+        width="0.5mm"
+        padOffset={{ x: 4.2, y: 3.2 }}
+      />
       {[3, 4, 13, 14].map((pin) => (
         <PourContact
           key={`usb-vbus-${pin}`}
@@ -1382,7 +1576,7 @@ export default () => (
         from=".U_ESD > .pin2"
         net="GND"
         layer="inner1"
-        padOffset={{ x: 0, y: -1.149096 }}
+        padOffset={{ x: 0, y: -2.2 }}
       />
       <PourContact from=".U_ESD > .pin5" net="VBUS" />
 
@@ -1528,14 +1722,14 @@ export default () => (
         from=".C_3V3_OUT > .pin1"
         net="V3V3"
         layer="inner2"
-        padOffset={{ x: -1.05, y: 0 }}
+        padOffset={{ x: -1.8, y: 0 }}
         width="0.6mm"
       />
       <PlaneDrop
         from=".C_3V3_OUT > .pin2"
         net="GND"
         layer="inner1"
-        padOffset={{ x: 1.05, y: 0 }}
+        padOffset={{ x: 1.8, y: 0 }}
         width="0.6mm"
       />
     </breakout>

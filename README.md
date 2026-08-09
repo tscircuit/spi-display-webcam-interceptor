@@ -79,22 +79,23 @@ configuration, and host interoperability still need validation.
 
 The source type-checks, the electrical netlist reports zero errors and warnings,
 schematic and PCB placement checks pass, and the autorouter completes without
-router errors or jumpers. The generated circuit JSON contains no PCB error or
-warning records, and `tsci check shorts` reports no Gerber shorts. The aggregate
-checker still emits advisory metadata, unnamed-trace, and supplier-footprint
-similarity warnings; the focused manufacturing checks pass.
+router errors or jumpers. Every generated via is a conventional L1-L4 plated
+through hole with a 0.30 mm finished drill and 0.60 mm copper pad. Blind, buried,
+and microvias are not used. The sole intentional via-in-pad is the grounded via
+in the ESP32-P4 exposed paddle; request bottom-side tenting or plugging to reduce
+solder wicking.
 
-The fabrication generator adds separate L1-L2, L1-L3, and L2-L4 blind-via drill
-files to the Gerber archive in addition to the normal L1-L4 PTH and NPTH drill
-files. Do not merge these span files. The selected fabricator must support the
-specified blind-via stack and should run its own CAM connectivity and clearance
-checks.
+The current routed output is **not order-ready**. PCB DRC still reports a crystal
+trace/via contact and two FLASH_D-area clearance violations, and two decoupling
+routes exceed their annotated 10 mm maximum. The existing fabrication directory
+was generated for an earlier blind-via revision and is superseded; do not upload
+its ZIP files. Generate a fresh PTH-only package only after DRC and shorts pass.
 
-Before ordering, confirm the exact display header orientation, QFN104 exposed-
-pad process, 0.20/0.30 mm via capability, USB-C mechanical fit, and a real
-four-layer stackup. Tune the USB pair to 90-ohm differential impedance using
-that stackup. The generated files are a routed reference design, not a substitute
-for assembly-house DFM review or first-article electrical validation.
+Before ordering, also confirm the exact display header orientation, QFN104
+exposed-pad process, USB-C mechanical fit, and the four-layer stackup. Tune the
+USB pair to 90-ohm differential impedance using that stackup. The generated
+files are a routed reference design, not a substitute for assembly-house DFM
+review or first-article electrical validation.
 
 The `firmware/` directory is an implementation contract, not a compiled ESP-IDF
 application.
@@ -111,5 +112,4 @@ npx tsci check shorts
 npx tsci build --site --pcb-png --schematic-png --autorouter-timeout 8m
 npx tsci export index.circuit.tsx --format gerbers --output outputs/fabrication/spi-display-webcam-interceptor-v1.0.0/gerbers.zip
 bun run fabrication:csv
-bun run fabrication:drills
 ```
