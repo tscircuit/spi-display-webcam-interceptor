@@ -1,29 +1,19 @@
 #pragma once
 
-#include "stm32f7xx_hal.h"
+#include "driver/gpio.h"
 
-#define CAPTURE_LCD_CS_GPIO_Port      GPIOA
-#define CAPTURE_LCD_CS_Pin            GPIO_PIN_4
-#define CAPTURE_LCD_SCK_GPIO_Port     GPIOA
-#define CAPTURE_LCD_SCK_Pin           GPIO_PIN_5
-#define CAPTURE_LCD_MISO_GPIO_Port    GPIOA
-#define CAPTURE_LCD_MISO_Pin          GPIO_PIN_6
-#define CAPTURE_LCD_MOSI_GPIO_Port    GPIOA
-#define CAPTURE_LCD_MOSI_Pin          GPIO_PIN_7
+#define CAPTURE_LCD_CS_GPIO       GPIO_NUM_1
+#define CAPTURE_LCD_RESET_GPIO    GPIO_NUM_2
+#define CAPTURE_LCD_DC_GPIO       GPIO_NUM_3
+#define CAPTURE_LCD_MOSI_GPIO     GPIO_NUM_4
+#define CAPTURE_LCD_SCK_GPIO      GPIO_NUM_5
+#define CAPTURE_LCD_LED_GPIO      GPIO_NUM_6
+#define CAPTURE_LCD_MISO_GPIO     GPIO_NUM_7
+#define CAPTURE_TOUCH_IRQ_GPIO    GPIO_NUM_8
 
-#define CAPTURE_LCD_RESET_GPIO_Port   GPIOC
-#define CAPTURE_LCD_RESET_Pin         GPIO_PIN_4
-#define CAPTURE_LCD_DC_GPIO_Port      GPIOC
-#define CAPTURE_LCD_DC_Pin            GPIO_PIN_5
-#define CAPTURE_LCD_LED_GPIO_Port     GPIOC
-#define CAPTURE_LCD_LED_Pin           GPIO_PIN_6
-#define CAPTURE_TOUCH_IRQ_GPIO_Port   GPIOC
-#define CAPTURE_TOUCH_IRQ_Pin         GPIO_PIN_7
+#define CAPTURE_BOOT_GPIO         GPIO_NUM_35
 
-#define USB_HS_DM_GPIO_Port           GPIOB
-#define USB_HS_DM_Pin                 GPIO_PIN_14
-#define USB_HS_DP_GPIO_Port           GPIOB
-#define USB_HS_DP_Pin                 GPIO_PIN_15
+/* USB High Speed uses the ESP32-P4's dedicated USB_DM/USB_DP package pins. */
 
 #define DISPLAY_WIDTH                 320u
 #define DISPLAY_HEIGHT                240u
