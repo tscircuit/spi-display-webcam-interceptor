@@ -19,10 +19,9 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@tscircuit/capacity-autorouter": "0.0.757",
     "@types/node": "^26.2.0",
     "@types/react": "^19.2.18",
-    "tscircuit": "^0.0.2253",
+    "tscircuit": "^0.0.2289",
     "typescript": "^5.0.0"
   },
   "author": "seveibar",
