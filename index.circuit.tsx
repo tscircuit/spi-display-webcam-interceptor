@@ -189,19 +189,19 @@ const p4ThreeVThreeCaps = [
   { pin: 9, name: "C_LP", x: -5.5, y: 7.4 },
   { pin: 21, name: "C_IO0", x: -5.8, y: 0.4 },
   { pin: 62, name: "C_IO4", x: 9.2, y: 2 },
-  { pin: 85, name: "C_IO5", x: 2.2, y: 10.5 },
-  { pin: 96, name: "C_IO6", x: 4.5, y: 10 },
+  { pin: 85, name: "C_IO5", x: 2.2, y: 12 },
+  { pin: 96, name: "C_IO6", x: 4.5, y: 11.5 },
   { pin: 75, name: "C_LDO", x: 6.5, y: 12.2 },
   { pin: 77, name: "C_DCDCC", x: 8.5, y: 12.5 },
-  { pin: 101, name: "C_ANA", x: -5, y: 10.5 },
-  { pin: 102, name: "C_BAT_100N", x: -7, y: 10.5 },
+  { pin: 101, name: "C_ANA", x: -5, y: 12 },
+  { pin: 102, name: "C_BAT_100N", x: -7, y: 12 },
 ] as const;
 
 const p4CoreCaps = [
   { pin: 26, name: "C_HP0", x: -5.8, y: -1.5, rotation: 0 },
   { pin: 54, name: "C_HP1", x: 9.2, y: -1, rotation: 0 },
   { pin: 76, name: "C_HP2", x: 8.3, y: 10.5, rotation: -90 },
-  { pin: 91, name: "C_HP3", x: 2.2, y: 9.2, rotation: 0 },
+  { pin: 91, name: "C_HP3", x: 2.2, y: 10.7, rotation: 0 },
 ] as const;
 
 type PlaneNet = "GND" | "V3V3" | "VBUS" | "V1V2";
@@ -372,7 +372,7 @@ export default () => (
     ))}
     <NetTrace from=".J_HOST > .pin2" net="GND" width="0.6mm" />
 
-    <ESP32_P4NRW32X name="U_MCU" pcbX={2} pcbY={3} schHeight={10.6} />
+    <ESP32_P4NRW32X name="U_MCU" pcbX={2} pcbY={4.5} schHeight={10.6} />
 
     <schematicbox
       name="U_MCU_IO"
@@ -634,7 +634,7 @@ export default () => (
       maxDecouplingTraceLength={10}
       footprint="0603"
       pcbX={-6}
-      pcbY={12.5}
+      pcbY={14}
       schSheetName="POWER"
       schSectionName="MCU_POWER"
       schX={11.5}
@@ -744,8 +744,9 @@ export default () => (
 
     <W25Q128JVSIQ
       name="U_FLASH"
-      pcbX={0.1}
-      pcbY={-7.5}
+      pcbX={-1.9}
+      pcbY={-7.1}
+      pcbRotation={90}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-5.5}
@@ -763,8 +764,8 @@ export default () => (
       name="R_FLASH_CS"
       resistance="10kohm"
       footprint="0402"
-      pcbX={4.1}
-      pcbY={-7.5}
+      pcbX={3.8}
+      pcbY={-7}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-5.5}
@@ -777,8 +778,8 @@ export default () => (
       capacitance="100nF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={4.1}
-      pcbY={-6.3}
+      pcbX={3.8}
+      pcbY={-6}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-1.7}
@@ -793,8 +794,8 @@ export default () => (
       capacitance="1uF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={4.1}
-      pcbY={-3.8}
+      pcbX={2.8}
+      pcbY={-3.2}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={0.3}
@@ -807,7 +808,7 @@ export default () => (
     <E3SB40E000030E
       name="Y1"
       pcbX={-1.5}
-      pcbY={12.5}
+      pcbY={14}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-6.5}
@@ -819,7 +820,7 @@ export default () => (
       maxDecouplingTraceLength={10}
       footprint="0402"
       pcbX={-4}
-      pcbY={15}
+      pcbY={16.5}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-3.5}
@@ -832,7 +833,7 @@ export default () => (
       maxDecouplingTraceLength={10}
       footprint="0402"
       pcbX={1}
-      pcbY={15}
+      pcbY={16.5}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-0.5}
