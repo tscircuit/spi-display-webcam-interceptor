@@ -173,7 +173,7 @@ const p4ThreeVThreeCaps = [
   { pin: 62, name: "C_IO4", x: 9.2, y: 2 },
   { pin: 85, name: "C_IO5", x: 4.2, y: 10 },
   { pin: 96, name: "C_IO6", x: 4, y: 12 },
-  { pin: 75, name: "C_LDO", x: 13, y: 6.2 },
+  { pin: 75, name: "C_LDO", x: 8.6, y: 6.7 },
   { pin: 77, name: "C_DCDCC", x: 12, y: 11.8 },
   { pin: 101, name: "C_ANA", x: -4.5, y: 14.5 },
   { pin: 102, name: "C_BAT_100N", x: -7.5, y: 14.5 },
@@ -182,7 +182,7 @@ const p4ThreeVThreeCaps = [
 const p4CoreCaps = [
   { pin: 26, name: "C_HP0", x: -5.8, y: -1.5 },
   { pin: 54, name: "C_HP1", x: 9.2, y: -1 },
-  { pin: 76, name: "C_HP2", x: 11.5, y: 7.5 },
+  { pin: 76, name: "C_HP2", x: 10, y: 8.8 },
   { pin: 91, name: "C_HP3", x: 2.2, y: 9.2 },
 ] as const;
 
@@ -241,7 +241,7 @@ const McuPlaneDecoupler = ({
 
 export default () => (
   <board
-    width="68mm"
+    width="47.6mm"
     height="54mm"
     layers={4}
     minViaHoleDiameter="0.3mm"
@@ -311,7 +311,7 @@ export default () => (
       pitch="2.54mm"
       gender="female"
       footprint={<DisplayHeaderFootprint />}
-      pcbX={-31}
+      pcbX={-22}
       pcbY={0}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
@@ -329,7 +329,7 @@ export default () => (
       pitch="2.54mm"
       gender="male"
       footprint={<DisplayHeaderFootprint />}
-      pcbX={-26}
+      pcbX={-17.5}
       pcbY={0}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
@@ -521,8 +521,8 @@ export default () => (
 
     <SN74LVC244APWR
       name="U_BUF"
-      pcbX={-15.5}
-      pcbY={-14}
+      pcbX={-11.8}
+      pcbY={-16}
       pcbRotation={90}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
@@ -538,8 +538,8 @@ export default () => (
       capacitance="100nF"
       maxDecouplingTraceLength={8}
       footprint="0402"
-      pcbX={-20.5}
-      pcbY={-16.8}
+      pcbX={-11.8}
+      pcbY={-21.2}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-3.8}
@@ -624,7 +624,7 @@ export default () => (
 
     <TLV62569DRLR
       name="U_CORE_BUCK"
-      pcbX={17}
+      pcbX={13}
       pcbY={8}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -633,7 +633,7 @@ export default () => (
     />
     <DFE201210U_2R2M_P2
       name="L_CORE"
-      pcbX={21}
+      pcbX={17}
       pcbY={8}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -645,7 +645,7 @@ export default () => (
       capacitance="4.7uF"
       maxDecouplingTraceLength={10}
       footprint="0603"
-      pcbX={17.5}
+      pcbX={13.5}
       pcbY={4.5}
       pcbRotation={-90}
       schSheetName="POWER"
@@ -659,7 +659,7 @@ export default () => (
       capacitance="22uF"
       maxDecouplingTraceLength={10}
       footprint="0805"
-      pcbX={25}
+      pcbX={21}
       pcbY={8}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -671,7 +671,7 @@ export default () => (
       name="R_CORE_TOP"
       resistance="499kohm"
       footprint="0402"
-      pcbX={21}
+      pcbX={17}
       pcbY={11}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -682,7 +682,7 @@ export default () => (
       name="R_CORE_BOT"
       resistance="499kohm"
       footprint="0402"
-      pcbX={23}
+      pcbX={19}
       pcbY={11}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -694,7 +694,7 @@ export default () => (
       capacitance="22pF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={21}
+      pcbX={17}
       pcbY={12.5}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -741,7 +741,7 @@ export default () => (
       name="R_FLASH_CS"
       resistance="10kohm"
       footprint="0402"
-      pcbX={-8}
+      pcbX={-6.8}
       pcbY={-13.5}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
@@ -979,7 +979,7 @@ export default () => (
     <trace from=".R_USB_DM > .pin2" to=".U_MCU > .pin49" width="0.2mm" />
     <SKRPACE010
       name="SW_BOOT"
-      pcbX={26}
+      pcbX={20}
       pcbY={21}
       schSheetName="SIGNALS"
       schSectionName="USB"
@@ -990,7 +990,7 @@ export default () => (
       name="R_BOOT_PU"
       resistance="10kohm"
       footprint="0402"
-      pcbX={20.5}
+      pcbX={14.5}
       pcbY={20}
       schSheetName="SIGNALS"
       schSectionName="USB"
@@ -1045,7 +1045,7 @@ export default () => (
     <SmdUsbCWithFixedSchematic
       name="J_USB"
       pcbX={2}
-      pcbY={-23.2}
+      pcbY={-23.1}
       schSheetName="SIGNALS"
       schSectionName="USB"
       schX={1.8}
@@ -1096,7 +1096,7 @@ export default () => (
 
     <TLV62569DRLR
       name="U_3V3_BUCK"
-      pcbX={18}
+      pcbX={14}
       pcbY={-18}
       schSheetName="POWER"
       schSectionName="THREE_VOLT_POWER"
@@ -1105,7 +1105,7 @@ export default () => (
     />
     <DFE201210U_2R2M_P2
       name="L_3V3"
-      pcbX={22}
+      pcbX={18}
       pcbY={-18}
       schSheetName="POWER"
       schSectionName="THREE_VOLT_POWER"
@@ -1117,7 +1117,7 @@ export default () => (
       capacitance="4.7uF"
       maxDecouplingTraceLength={10}
       footprint="0603"
-      pcbX={18.5}
+      pcbX={14.5}
       pcbY={-21.3}
       pcbRotation={-90}
       schSheetName="POWER"
@@ -1131,7 +1131,7 @@ export default () => (
       capacitance="22uF"
       maxDecouplingTraceLength={10}
       footprint="0805"
-      pcbX={26}
+      pcbX={22}
       pcbY={-18}
       schSheetName="POWER"
       schSectionName="THREE_VOLT_POWER"
@@ -1143,7 +1143,7 @@ export default () => (
       name="R_3V3_TOP"
       resistance="453kohm"
       footprint="0402"
-      pcbX={22}
+      pcbX={18}
       pcbY={-15.7}
       schSheetName="POWER"
       schSectionName="THREE_VOLT_POWER"
@@ -1154,7 +1154,7 @@ export default () => (
       name="R_3V3_BOT"
       resistance="100kohm"
       footprint="0402"
-      pcbX={24}
+      pcbX={20}
       pcbY={-15.7}
       schSheetName="POWER"
       schSectionName="THREE_VOLT_POWER"
@@ -1166,7 +1166,7 @@ export default () => (
       capacitance="22pF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={22}
+      pcbX={18}
       pcbY={-14.2}
       schSheetName="POWER"
       schSectionName="THREE_VOLT_POWER"
@@ -1190,10 +1190,10 @@ export default () => (
     <NetTrace from=".R_3V3_BOT > .pin2" net="GND" />
     <NetTrace from=".C_3V3_OUT > .pin1" net="V3V3" width="0.6mm" />
     <NetTrace from=".C_3V3_OUT > .pin2" net="GND" width="0.6mm" />
-    <hole name="H1" diameter="3.2mm" pcbX={-31.5} pcbY={24.5} />
-    <hole name="H2" diameter="3.2mm" pcbX={31.5} pcbY={24.5} />
-    <hole name="H3" diameter="3.2mm" pcbX={-31.5} pcbY={-24.5} />
-    <hole name="H4" diameter="3.2mm" pcbX={31.5} pcbY={-24.5} />
+    <hole name="H1" diameter="3.2mm" pcbX={-21.3} pcbY={24.5} />
+    <hole name="H2" diameter="3.2mm" pcbX={21.3} pcbY={24.5} />
+    <hole name="H3" diameter="3.2mm" pcbX={-21.3} pcbY={-24.5} />
+    <hole name="H4" diameter="3.2mm" pcbX={21.3} pcbY={-24.5} />
 
     <silkscreentext
       text="ESP32-P4 SPI DISPLAY UVC CAPTURE"
@@ -1204,7 +1204,7 @@ export default () => (
     />
     <silkscreentext
       text="DISPLAY"
-      pcbX={-33}
+      pcbX={-22.8}
       pcbY={0}
       pcbRotation={90}
       fontSize="1mm"
@@ -1212,7 +1212,7 @@ export default () => (
     />
     <silkscreentext
       text="HOST"
-      pcbX={-23.5}
+      pcbX={-17.5}
       pcbY={0}
       pcbRotation={90}
       fontSize="1mm"
@@ -1220,7 +1220,7 @@ export default () => (
     />
     <silkscreentext
       text="BOOT"
-      pcbX={26}
+      pcbX={20}
       pcbY={24}
       fontSize="0.9mm"
       anchorAlignment="center"
