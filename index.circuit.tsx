@@ -533,10 +533,11 @@ export default () => (
         pin2: "USB_DP",
         pin3: "CHIP_PU",
         pin4: "GPIO35",
+        pin5: "GPIO36",
       }}
       schPinArrangement={{
         leftSide: ["pin1", "pin2"],
-        rightSide: ["pin3", "pin4"],
+        rightSide: ["pin3", "pin4", "pin5"],
       }}
     />
 
@@ -633,7 +634,7 @@ export default () => (
       capacitance="10uF"
       maxDecouplingTraceLength={10}
       footprint="0603"
-      pcbX={-6}
+      pcbX={-7.5}
       pcbY={14}
       schSheetName="POWER"
       schSectionName="MCU_POWER"
@@ -745,7 +746,7 @@ export default () => (
     <W25Q128JVSIQ
       name="U_FLASH"
       pcbX={-1.9}
-      pcbY={-7.1}
+      pcbY={-6.8}
       pcbRotation={90}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
@@ -764,8 +765,8 @@ export default () => (
       name="R_FLASH_CS"
       resistance="10kohm"
       footprint="0402"
-      pcbX={3.8}
-      pcbY={-7}
+      pcbX={-0.8}
+      pcbY={-11}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-5.5}
@@ -807,8 +808,8 @@ export default () => (
 
     <E3SB40E000030E
       name="Y1"
-      pcbX={-1.5}
-      pcbY={14}
+      pcbX={-0.5}
+      pcbY={15.8}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-6.5}
@@ -819,8 +820,8 @@ export default () => (
       capacitance="12pF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={-4}
-      pcbY={16.5}
+      pcbX={-3.6}
+      pcbY={14.9}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-3.5}
@@ -832,16 +833,41 @@ export default () => (
       capacitance="12pF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={1}
-      pcbY={16.5}
+      pcbX={2.6}
+      pcbY={16.7}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-0.5}
       schY={-8.2}
       schOrientation="vertical"
     />
-    <trace from=".U_MCU > .pin100" to=".Y1 > .pin1" />
-    <trace from=".U_MCU > .pin99" to=".Y1 > .pin3" />
+    <trace
+      name="XTAL_P"
+      from=".U_MCU > .pin100"
+      to=".Y1 > .pin1"
+      width="0.15mm"
+      maxLength="10mm"
+      pcbPath={[
+        ".U_MCU > .pin100",
+        { x: -2.975, y: 6.5 },
+        { x: -2.975, y: 7.5 },
+        ".Y1 > .pin1",
+      ]}
+    />
+    <trace
+      name="XTAL_N"
+      from=".U_MCU > .pin99"
+      to=".Y1 > .pin3"
+      width="0.15mm"
+      maxLength="10mm"
+      pcbPath={[
+        ".U_MCU > .pin99",
+        { x: -2.625, y: 6 },
+        { x: 1, y: 8.5 },
+        { x: 1, y: 12.15 },
+        ".Y1 > .pin3",
+      ]}
+    />
     <trace from=".C_XTAL_P > .pin1" to=".Y1 > .pin1" />
     <trace from=".C_XTAL_N > .pin1" to=".Y1 > .pin3" />
     <NetTrace from=".Y1 > .pin2" net="GND" />
@@ -882,7 +908,7 @@ export default () => (
       capacitance="1uF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={9.5}
+      pcbX={9.7}
       pcbY={3}
       schSheetName="POWER"
       schSectionName="MCU_POWER"
@@ -1024,6 +1050,20 @@ export default () => (
     <trace from=".R_BOOT_PU > .pin2" to=".U_MCU > .pin66" />
     <trace from=".U_MCU > .pin66" to=".SW_BOOT > .pin1" />
     <NetTrace from=".SW_BOOT > .pin2" net="GND" />
+    <resistor
+      name="R_GPIO36_PU"
+      resistance="10kohm"
+      footprint="0402"
+      pcbX={7.2}
+      pcbY={4.2}
+      pcbRotation={90}
+      schSheetName="SIGNALS"
+      schSectionName="USB"
+      schX={8}
+      schY={6}
+    />
+    <NetTrace from=".R_GPIO36_PU > .pin1" net="V3V3" />
+    <trace from=".R_GPIO36_PU > .pin2" to=".U_MCU > .pin68" />
 
     <SKRPACE010
       name="SW_RESET"
@@ -1050,7 +1090,7 @@ export default () => (
       capacitance="1uF"
       maxDecouplingTraceLength={20}
       footprint="0402"
-      pcbX={5.2}
+      pcbX={3.5}
       pcbY={14}
       schSheetName="SIGNALS"
       schSectionName="USB"
