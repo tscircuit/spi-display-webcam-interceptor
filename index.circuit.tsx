@@ -186,8 +186,8 @@ const p4ThreeVThreePins = [9, 21, 62, 85, 96, 75, 77, 101, 102] as const;
 const p4CorePins = [26, 54, 76, 91] as const;
 
 const p4ThreeVThreeCaps = [
-  { pin: 9, name: "C_LP", x: -5.5, y: 7.4 },
-  { pin: 21, name: "C_IO0", x: -5.8, y: 0.4 },
+  { pin: 9, name: "C_LP", x: -7, y: 7.4 },
+  { pin: 21, name: "C_IO0", x: -7.3, y: 1.9 },
   { pin: 62, name: "C_IO4", x: 9.2, y: 2 },
   { pin: 85, name: "C_IO5", x: 2.2, y: 12 },
   { pin: 96, name: "C_IO6", x: 4.5, y: 11.5 },
@@ -198,10 +198,10 @@ const p4ThreeVThreeCaps = [
 ] as const;
 
 const p4CoreCaps = [
-  { pin: 26, name: "C_HP0", x: -5.8, y: -1.5, rotation: 0 },
+  { pin: 26, name: "C_HP0", x: -7.3, y: -1.5, rotation: 0 },
   { pin: 54, name: "C_HP1", x: 9.2, y: -1, rotation: 0 },
   { pin: 76, name: "C_HP2", x: 8.3, y: 10.5, rotation: -90 },
-  { pin: 91, name: "C_HP3", x: 2.2, y: 10.7, rotation: 0 },
+  { pin: 91, name: "C_HP3", x: 0.7, y: 10.7, rotation: 0 },
 ] as const;
 
 type PlaneNet = "GND" | "V3V3" | "VBUS" | "V1V2";
@@ -263,7 +263,7 @@ const McuPlaneDecoupler = ({
 export default () => (
   <board
     width="35.7mm"
-    height="38.72mm"
+    height="38.74mm"
     layers={4}
     minViaHoleDiameter="0.3mm"
   >
@@ -372,7 +372,7 @@ export default () => (
     ))}
     <NetTrace from=".J_HOST > .pin2" net="GND" width="0.6mm" />
 
-    <ESP32_P4NRW32X name="U_MCU" pcbX={2} pcbY={4.5} schHeight={10.6} />
+    <ESP32_P4NRW32X name="U_MCU" pcbX={0.5} pcbY={4.5} schHeight={10.6} />
 
     <schematicbox
       name="U_MCU_IO"
@@ -922,9 +922,9 @@ export default () => (
     <NetTrace from=".R_USBPHY > .pin1" net="V3V3" />
     <trace from=".R_USBPHY > .pin2" to=".U_MCU > .pin51" />
     {[
-      { name: "C_USBPHY_10N", value: "10nF", x: 10, y: -5.5 },
-      { name: "C_USBPHY_100N", value: "100nF", x: 12, y: -5.5 },
-      { name: "C_USBPHY_4U7", value: "4.7uF", x: 14.5, y: -5.5 },
+      { name: "C_USBPHY_10N", value: "10nF", x: 8.5, y: -5.5 },
+      { name: "C_USBPHY_100N", value: "100nF", x: 10.5, y: -5.5 },
+      { name: "C_USBPHY_4U7", value: "4.7uF", x: 13, y: -5.5 },
     ].map((cap, index) => (
       <Fragment key={cap.name}>
         <capacitor
@@ -954,7 +954,7 @@ export default () => (
     <USBLC6_2SC6
       name="U_ESD"
       pcbX={5.1}
-      pcbY={-10.2}
+      pcbY={-9.7}
       schSheetName="SIGNALS"
       schSectionName="USB"
       schX={5.6}
