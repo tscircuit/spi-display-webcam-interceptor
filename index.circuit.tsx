@@ -55,10 +55,27 @@ const usbCPinAttributes = {
   16: { requiresGround: true, mustBeConnected: true },
 } as NonNullable<SmdUsbCProps["pinAttributes"]>;
 
-/** Keep the published USB-C footprint while arranging its built-in symbol. */
-const SmdUsbCWithFixedSchematic = (props: SmdUsbCProps) =>
-  cloneElement(SmdUsbC(props), {
+/** Add the connector courtyard while arranging its built-in symbol. */
+const SmdUsbCWithFixedSchematic = (props: SmdUsbCProps) => {
+  const usbC = SmdUsbC(props);
+  const footprintWithCourtyard = cloneElement(
+    usbC.props.footprint,
+    {},
+    usbC.props.footprint.props.children,
+    <courtyardoutline
+      outline={[
+        { x: -5.18, y: -5.37 },
+        { x: 5.18, y: -5.37 },
+        { x: 5.18, y: 3.2 },
+        { x: -5.18, y: 3.2 },
+        { x: -5.18, y: -5.37 },
+      ]}
+    />,
+  );
+
+  return cloneElement(usbC, {
     pinAttributes: props.pinAttributes ?? usbCPinAttributes,
+    footprint: footprintWithCourtyard,
     schPortArrangement: {
       leftSide: { pins: [], direction: "top-to-bottom" },
       rightSide: {
@@ -81,6 +98,7 @@ const SmdUsbCWithFixedSchematic = (props: SmdUsbCProps) =>
     },
     schPinStyle: {},
   });
+};
 
 const displayPinLabels = {
   pin1: "VCC",
@@ -1048,7 +1066,7 @@ export default () => (
 
     <SmdUsbCWithFixedSchematic
       name="J_USB"
-      pcbX={2}
+      pcbX={2.35}
       pcbY={-15.46}
       schSheetName="SIGNALS"
       schSectionName="USB"
@@ -1084,7 +1102,7 @@ export default () => (
       name="R_CC2"
       resistance="5.1kohm"
       footprint="0402"
-      pcbX={8}
+      pcbX={-6.5}
       pcbY={-18.5}
       schSheetName="SIGNALS"
       schSectionName="USB"
@@ -1100,7 +1118,7 @@ export default () => (
 
     <TLV62569DRLR
       name="U_3V3_BUCK"
-      pcbX={8.3}
+      pcbX={9.05}
       pcbY={-13}
       schSheetName="POWER"
       schSectionName="THREE_VOLT_POWER"
