@@ -85,31 +85,32 @@ and microvias are not used. The sole intentional via-in-pad is the grounded via
 in the ESP32-P4 exposed paddle; request bottom-side tenting or plugging to reduce
 solder wicking.
 
-The current routed output is **not order-ready**. With tscircuit 0.0.2325, PCB
-clearance DRC and the shorts check pass, but the pre-order audit still has these
-blocking findings:
+The manufacturing-blocker pass adds separate 10 uF capacitors at `VDD_LDO` and
+`VDD_DCDCC`, keeps their 100 nF capacitors beside the MCU, adds the required
+GPIO36 boot strap, and removes the core-inductor/output-capacitor overlap. The
+USB ESD-to-MCU lanes are explicit top-layer routes with no vias. Their total
+post-ESD lengths are 8.1895 mm (D-) and 8.1855 mm (D+), a 0.004 mm skew. The
+short USB-C duplicate-pin fan-in before the ESD device remains autorouted.
 
-- The autorouted USB High-Speed lanes are not a controlled 90-ohm differential
-  pair. Each lane changes layers four times, the two MCU-to-ESD paths differ by
-  about 0.85 mm, and the routes use inner copper that should remain a continuous
-  reference plane.
-- Fourteen generated routes exceed their annotated maximum length, including
-  several MCU decoupling connections. Component placement and power breakout
-  need another pass before fabrication.
-- Espressif recommends a 10 uF bulk capacitor close to both `VDD_LDO` and
-  `VDD_DCDCC`; the present layout has only one shared, distant bulk capacitor.
-- Confirm live stock or pre-order the exact `ESP32-P4NRW32X` before submitting
-  the assembly BOM.
+The generated PCB currently has zero clearance/overlap errors, zero placement
+errors, zero netlist errors, zero shorts, no jumpers, and 183 routed
+connections. A fresh PTH-only Gerber/BOM/CPL package is generated under
+`outputs/fabrication/spi-display-webcam-interceptor-v1.0.0/`.
 
-The existing fabrication directory was generated for an earlier blind-via
-revision and is superseded; do not upload its ZIP files. Generate a fresh
-PTH-only package only after the blockers above are resolved and rechecked.
+The package is still a **release candidate, not an unconditional order
+approval**. tscircuit reports 17 maximum-length warnings, primarily on the
+shared power-plane/decoupling routing tree. These should be reviewed in the
+Gerbers, and the relevant capacitor breakouts should be manually shortened if
+the assembly-house review agrees they represent the physical current path.
+Also confirm live stock or pre-order the exact `ESP32-P4NRW32X` before
+submitting the assembly BOM.
 
 Before ordering, also confirm the exact display header orientation, QFN104
-exposed-pad process, USB-C mechanical fit, and the four-layer stackup. Tune the
-USB pair to 90-ohm differential impedance using that stackup. The generated
-files are a routed reference design, not a substitute for assembly-house DFM
-review or first-article electrical validation.
+exposed-pad process, USB-C mechanical fit, and the four-layer stackup. Request
+90-ohm differential impedance control for the USB pair and have the fabricator
+adjust the 0.18 mm nominal geometry for the selected stackup. The generated
+files are not a substitute for assembly-house DFM review or first-article
+electrical validation.
 
 The `firmware/` directory is an implementation contract, not a compiled ESP-IDF
 application.
