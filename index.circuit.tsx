@@ -180,10 +180,10 @@ const p4ThreeVThreeCaps = [
 ] as const;
 
 const p4CoreCaps = [
-  { pin: 26, name: "C_HP0", x: -5.8, y: -1.5 },
-  { pin: 54, name: "C_HP1", x: 9.2, y: -1 },
-  { pin: 76, name: "C_HP2", x: 10, y: 8.8 },
-  { pin: 91, name: "C_HP3", x: 2.2, y: 9.2 },
+  { pin: 26, name: "C_HP0", x: -5.8, y: -1.5, rotation: 0 },
+  { pin: 54, name: "C_HP1", x: 9.2, y: -1, rotation: 0 },
+  { pin: 76, name: "C_HP2", x: 12.5, y: 10.2, rotation: -90 },
+  { pin: 91, name: "C_HP3", x: 2.2, y: 9.2, rotation: 0 },
 ] as const;
 
 type PlaneNet = "GND" | "V3V3" | "VBUS" | "V1V2";
@@ -203,6 +203,7 @@ const McuPlaneDecoupler = ({
   targetPin,
   x,
   y,
+  rotation = 0,
   powerNet,
   schX,
   schY,
@@ -211,6 +212,7 @@ const McuPlaneDecoupler = ({
   targetPin: number;
   x: number;
   y: number;
+  rotation?: number;
   powerNet: "V3V3" | "V1V2";
   schX: number;
   schY: number;
@@ -223,6 +225,7 @@ const McuPlaneDecoupler = ({
       footprint="0402"
       pcbX={x}
       pcbY={y}
+      pcbRotation={rotation}
       schSheetName="POWER"
       schSectionName="MCU_POWER"
       schX={schX}
@@ -584,6 +587,7 @@ export default () => (
         targetPin={cap.pin}
         x={cap.x}
         y={cap.y}
+        rotation={cap.rotation}
         powerNet="V1V2"
         schX={-12 + index * 2.8}
         schY={5.5}
@@ -596,7 +600,7 @@ export default () => (
       capacitance="10uF"
       maxDecouplingTraceLength={10}
       footprint="0603"
-      pcbX={14}
+      pcbX={14.6}
       pcbY={10.5}
       schSheetName="POWER"
       schSectionName="MCU_POWER"
@@ -671,7 +675,7 @@ export default () => (
       name="R_CORE_TOP"
       resistance="499kohm"
       footprint="0402"
-      pcbX={17}
+      pcbX={17.2}
       pcbY={11}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -682,7 +686,7 @@ export default () => (
       name="R_CORE_BOT"
       resistance="499kohm"
       footprint="0402"
-      pcbX={19}
+      pcbX={19.2}
       pcbY={11}
       schSheetName="POWER"
       schSectionName="CORE_POWER"

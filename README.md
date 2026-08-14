@@ -86,8 +86,7 @@ in the ESP32-P4 exposed paddle; request bottom-side tenting or plugging to reduc
 solder wicking.
 
 The current routed output is **not order-ready**. With tscircuit 0.0.2325, PCB
-DRC reports one 0.087 mm pad-to-trace clearance where 0.100 mm is required near
-the core buck converter, and seven routes exceed their annotated maximum length.
+clearance DRC passes, but ten routes exceed their annotated maximum length.
 The existing fabrication directory was generated for an earlier blind-via
 revision and is superseded; do not upload its ZIP files. Generate a fresh
 PTH-only package only after DRC and shorts pass.
