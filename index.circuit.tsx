@@ -171,19 +171,19 @@ const p4ThreeVThreeCaps = [
   { pin: 9, name: "C_LP", x: -5.5, y: 7.4 },
   { pin: 21, name: "C_IO0", x: -5.8, y: 0.4 },
   { pin: 62, name: "C_IO4", x: 9.2, y: 2 },
-  { pin: 85, name: "C_IO5", x: 4.2, y: 10 },
-  { pin: 96, name: "C_IO6", x: 4, y: 12 },
-  { pin: 75, name: "C_LDO", x: 13, y: 6.2 },
-  { pin: 77, name: "C_DCDCC", x: 12, y: 11.8 },
-  { pin: 101, name: "C_ANA", x: -4.5, y: 14.5 },
-  { pin: 102, name: "C_BAT_100N", x: -7.5, y: 14.5 },
+  { pin: 85, name: "C_IO5", x: 2.2, y: 10.5 },
+  { pin: 96, name: "C_IO6", x: 4.5, y: 10 },
+  { pin: 75, name: "C_LDO", x: 6.5, y: 12.2 },
+  { pin: 77, name: "C_DCDCC", x: 8.5, y: 12.5 },
+  { pin: 101, name: "C_ANA", x: -5, y: 10.5 },
+  { pin: 102, name: "C_BAT_100N", x: -7, y: 10.5 },
 ] as const;
 
 const p4CoreCaps = [
-  { pin: 26, name: "C_HP0", x: -5.8, y: -1.5 },
-  { pin: 54, name: "C_HP1", x: 9.2, y: -1 },
-  { pin: 76, name: "C_HP2", x: 11.5, y: 7.5 },
-  { pin: 91, name: "C_HP3", x: 2.2, y: 9.2 },
+  { pin: 26, name: "C_HP0", x: -5.8, y: -1.5, rotation: 0 },
+  { pin: 54, name: "C_HP1", x: 9.2, y: -1, rotation: 0 },
+  { pin: 76, name: "C_HP2", x: 8.3, y: 10.5, rotation: -90 },
+  { pin: 91, name: "C_HP3", x: 2.2, y: 9.2, rotation: 0 },
 ] as const;
 
 type PlaneNet = "GND" | "V3V3" | "VBUS" | "V1V2";
@@ -203,6 +203,7 @@ const McuPlaneDecoupler = ({
   targetPin,
   x,
   y,
+  rotation = 0,
   powerNet,
   schX,
   schY,
@@ -211,6 +212,7 @@ const McuPlaneDecoupler = ({
   targetPin: number;
   x: number;
   y: number;
+  rotation?: number;
   powerNet: "V3V3" | "V1V2";
   schX: number;
   schY: number;
@@ -223,6 +225,7 @@ const McuPlaneDecoupler = ({
       footprint="0402"
       pcbX={x}
       pcbY={y}
+      pcbRotation={rotation}
       schSheetName="POWER"
       schSectionName="MCU_POWER"
       schX={schX}
@@ -241,8 +244,8 @@ const McuPlaneDecoupler = ({
 
 export default () => (
   <board
-    width="68mm"
-    height="54mm"
+    width="35.7mm"
+    height="38.72mm"
     layers={4}
     minViaHoleDiameter="0.3mm"
   >
@@ -311,7 +314,7 @@ export default () => (
       pitch="2.54mm"
       gender="female"
       footprint={<DisplayHeaderFootprint />}
-      pcbX={-31}
+      pcbX={-16.5}
       pcbY={0}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
@@ -329,7 +332,7 @@ export default () => (
       pitch="2.54mm"
       gender="male"
       footprint={<DisplayHeaderFootprint />}
-      pcbX={-26}
+      pcbX={-12.8}
       pcbY={0}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
@@ -521,8 +524,8 @@ export default () => (
 
     <SN74LVC244APWR
       name="U_BUF"
-      pcbX={-15.5}
-      pcbY={-14}
+      pcbX={-7.1}
+      pcbY={-13.8}
       pcbRotation={90}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
@@ -538,8 +541,8 @@ export default () => (
       capacitance="100nF"
       maxDecouplingTraceLength={8}
       footprint="0402"
-      pcbX={-20.5}
-      pcbY={-16.8}
+      pcbX={-10}
+      pcbY={-18.5}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-3.8}
@@ -584,6 +587,7 @@ export default () => (
         targetPin={cap.pin}
         x={cap.x}
         y={cap.y}
+        rotation={cap.rotation}
         powerNet="V1V2"
         schX={-12 + index * 2.8}
         schY={5.5}
@@ -597,7 +601,7 @@ export default () => (
       maxDecouplingTraceLength={10}
       footprint="0603"
       pcbX={14}
-      pcbY={10.5}
+      pcbY={5.5}
       schSheetName="POWER"
       schSectionName="MCU_POWER"
       schX={9}
@@ -611,8 +615,8 @@ export default () => (
       capacitance="10uF"
       maxDecouplingTraceLength={10}
       footprint="0603"
-      pcbX={-5.8}
-      pcbY={11.8}
+      pcbX={-6}
+      pcbY={12.5}
       schSheetName="POWER"
       schSectionName="MCU_POWER"
       schX={11.5}
@@ -624,7 +628,7 @@ export default () => (
 
     <TLV62569DRLR
       name="U_CORE_BUCK"
-      pcbX={17}
+      pcbX={8.9}
       pcbY={8}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -633,7 +637,7 @@ export default () => (
     />
     <DFE201210U_2R2M_P2
       name="L_CORE"
-      pcbX={21}
+      pcbX={12}
       pcbY={8}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -645,8 +649,8 @@ export default () => (
       capacitance="4.7uF"
       maxDecouplingTraceLength={10}
       footprint="0603"
-      pcbX={17.5}
-      pcbY={4.5}
+      pcbX={8.8}
+      pcbY={5}
       pcbRotation={-90}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -659,7 +663,7 @@ export default () => (
       capacitance="22uF"
       maxDecouplingTraceLength={10}
       footprint="0805"
-      pcbX={25}
+      pcbX={16}
       pcbY={8}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -671,7 +675,7 @@ export default () => (
       name="R_CORE_TOP"
       resistance="499kohm"
       footprint="0402"
-      pcbX={21}
+      pcbX={12.2}
       pcbY={11}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -682,7 +686,7 @@ export default () => (
       name="R_CORE_BOT"
       resistance="499kohm"
       footprint="0402"
-      pcbX={23}
+      pcbX={14.2}
       pcbY={11}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -694,7 +698,7 @@ export default () => (
       capacitance="22pF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={21}
+      pcbX={12}
       pcbY={12.5}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -722,8 +726,8 @@ export default () => (
 
     <W25Q128JVSIQ
       name="U_FLASH"
-      pcbX={-8}
-      pcbY={-7}
+      pcbX={0.1}
+      pcbY={-7.5}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-5.5}
@@ -741,8 +745,8 @@ export default () => (
       name="R_FLASH_CS"
       resistance="10kohm"
       footprint="0402"
-      pcbX={-8}
-      pcbY={-13.5}
+      pcbX={4.1}
+      pcbY={-7.5}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-5.5}
@@ -755,8 +759,8 @@ export default () => (
       capacitance="100nF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={-12}
-      pcbY={-3.5}
+      pcbX={4.1}
+      pcbY={-6.3}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-1.7}
@@ -771,8 +775,8 @@ export default () => (
       capacitance="1uF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={-1.5}
-      pcbY={-4.2}
+      pcbX={4.1}
+      pcbY={-3.8}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={0.3}
@@ -784,8 +788,8 @@ export default () => (
 
     <E3SB40E000030E
       name="Y1"
-      pcbX={-2}
-      pcbY={12.3}
+      pcbX={-1.5}
+      pcbY={12.5}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-6.5}
@@ -796,8 +800,8 @@ export default () => (
       capacitance="12pF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={-5.2}
-      pcbY={16}
+      pcbX={-4}
+      pcbY={15}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-3.5}
@@ -809,8 +813,8 @@ export default () => (
       capacitance="12pF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={1.2}
-      pcbY={16}
+      pcbX={1}
+      pcbY={15}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-0.5}
@@ -829,9 +833,9 @@ export default () => (
     <trace from=".U_MCU > .pin72" to=".U_MCU > .pin59" />
     <trace from=".U_MCU > .pin72" to=".U_MCU > .pin67" />
     {[
-      { name: "C_PSRAM0", x: 11, y: 0.5, value: "100nF", target: 59 },
-      { name: "C_PSRAM1", x: 11, y: 3.8, value: "100nF", target: 67 },
-      { name: "C_PSRAM_BULK", x: 11, y: 5.5, value: "1uF", target: 72 },
+      { name: "C_PSRAM0", x: 9.5, y: 0.5, value: "100nF", target: 59 },
+      { name: "C_PSRAM1", x: 11.5, y: 1.5, value: "100nF", target: 67 },
+      { name: "C_PSRAM_BULK", x: 13.5, y: 2.5, value: "1uF", target: 72 },
     ].map((cap, index) => (
       <Fragment key={cap.name}>
         <capacitor
@@ -859,8 +863,8 @@ export default () => (
       capacitance="1uF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={9}
-      pcbY={4.5}
+      pcbX={9.5}
+      pcbY={3}
       schSheetName="POWER"
       schSectionName="MCU_POWER"
       schX={8.4}
@@ -872,8 +876,8 @@ export default () => (
       capacitance="1uF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={8.8}
-      pcbY={5.5}
+      pcbX={11.5}
+      pcbY={4}
       schSheetName="POWER"
       schSectionName="MCU_POWER"
       schX={11.2}
@@ -930,8 +934,8 @@ export default () => (
 
     <USBLC6_2SC6
       name="U_ESD"
-      pcbX={2}
-      pcbY={-17.5}
+      pcbX={5.1}
+      pcbY={-10.2}
       schSheetName="SIGNALS"
       schSectionName="USB"
       schX={5.6}
@@ -979,8 +983,8 @@ export default () => (
     <trace from=".R_USB_DM > .pin2" to=".U_MCU > .pin49" width="0.2mm" />
     <SKRPACE010
       name="SW_BOOT"
-      pcbX={26}
-      pcbY={21}
+      pcbX={13.3}
+      pcbY={16.5}
       schSheetName="SIGNALS"
       schSectionName="USB"
       schX={12}
@@ -990,8 +994,8 @@ export default () => (
       name="R_BOOT_PU"
       resistance="10kohm"
       footprint="0402"
-      pcbX={20.5}
-      pcbY={20}
+      pcbX={13.3}
+      pcbY={14}
       schSheetName="SIGNALS"
       schSectionName="USB"
       schX={8}
@@ -1004,8 +1008,8 @@ export default () => (
 
     <SKRPACE010
       name="SW_RESET"
-      pcbX={-14}
-      pcbY={24}
+      pcbX={7.2}
+      pcbY={16.5}
       schSheetName="SIGNALS"
       schSectionName="USB"
       schX={12}
@@ -1015,8 +1019,8 @@ export default () => (
       name="R_RESET_PU"
       resistance="10kohm"
       footprint="0402"
-      pcbX={-6}
-      pcbY={9.5}
+      pcbX={7.2}
+      pcbY={14}
       schSheetName="SIGNALS"
       schSectionName="USB"
       schX={8}
@@ -1027,8 +1031,8 @@ export default () => (
       capacitance="1uF"
       maxDecouplingTraceLength={20}
       footprint="0402"
-      pcbX={-6}
-      pcbY={10.5}
+      pcbX={5.2}
+      pcbY={14}
       schSheetName="SIGNALS"
       schSectionName="USB"
       schX={5}
@@ -1045,7 +1049,7 @@ export default () => (
     <SmdUsbCWithFixedSchematic
       name="J_USB"
       pcbX={2}
-      pcbY={-23.2}
+      pcbY={-15.46}
       schSheetName="SIGNALS"
       schSectionName="USB"
       schX={1.8}
@@ -1070,7 +1074,7 @@ export default () => (
       resistance="5.1kohm"
       footprint="0402"
       pcbX={-4.5}
-      pcbY={-22}
+      pcbY={-18.5}
       schSheetName="SIGNALS"
       schSectionName="USB"
       schX={2.2}
@@ -1080,8 +1084,8 @@ export default () => (
       name="R_CC2"
       resistance="5.1kohm"
       footprint="0402"
-      pcbX={8.5}
-      pcbY={-22}
+      pcbX={8}
+      pcbY={-18.5}
       schSheetName="SIGNALS"
       schSectionName="USB"
       schX={4.8}
@@ -1096,8 +1100,8 @@ export default () => (
 
     <TLV62569DRLR
       name="U_3V3_BUCK"
-      pcbX={18}
-      pcbY={-18}
+      pcbX={8.3}
+      pcbY={-13}
       schSheetName="POWER"
       schSectionName="THREE_VOLT_POWER"
       schX={2}
@@ -1105,8 +1109,8 @@ export default () => (
     />
     <DFE201210U_2R2M_P2
       name="L_3V3"
-      pcbX={22}
-      pcbY={-18}
+      pcbX={12}
+      pcbY={-13}
       schSheetName="POWER"
       schSectionName="THREE_VOLT_POWER"
       schX={6}
@@ -1117,8 +1121,8 @@ export default () => (
       capacitance="4.7uF"
       maxDecouplingTraceLength={10}
       footprint="0603"
-      pcbX={18.5}
-      pcbY={-21.3}
+      pcbX={10}
+      pcbY={-17}
       pcbRotation={-90}
       schSheetName="POWER"
       schSectionName="THREE_VOLT_POWER"
@@ -1131,8 +1135,8 @@ export default () => (
       capacitance="22uF"
       maxDecouplingTraceLength={10}
       footprint="0805"
-      pcbX={26}
-      pcbY={-18}
+      pcbX={16}
+      pcbY={-13}
       schSheetName="POWER"
       schSectionName="THREE_VOLT_POWER"
       schX={11}
@@ -1143,8 +1147,8 @@ export default () => (
       name="R_3V3_TOP"
       resistance="453kohm"
       footprint="0402"
-      pcbX={22}
-      pcbY={-15.7}
+      pcbX={12}
+      pcbY={-10.7}
       schSheetName="POWER"
       schSectionName="THREE_VOLT_POWER"
       schX={6}
@@ -1154,8 +1158,8 @@ export default () => (
       name="R_3V3_BOT"
       resistance="100kohm"
       footprint="0402"
-      pcbX={24}
-      pcbY={-15.7}
+      pcbX={14}
+      pcbY={-10.7}
       schSheetName="POWER"
       schSectionName="THREE_VOLT_POWER"
       schX={11}
@@ -1166,8 +1170,8 @@ export default () => (
       capacitance="22pF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={22}
-      pcbY={-14.2}
+      pcbX={12}
+      pcbY={-9.2}
       schSheetName="POWER"
       schSectionName="THREE_VOLT_POWER"
       schX={8.5}
@@ -1190,21 +1194,17 @@ export default () => (
     <NetTrace from=".R_3V3_BOT > .pin2" net="GND" />
     <NetTrace from=".C_3V3_OUT > .pin1" net="V3V3" width="0.6mm" />
     <NetTrace from=".C_3V3_OUT > .pin2" net="GND" width="0.6mm" />
-    <hole name="H1" diameter="3.2mm" pcbX={-31.5} pcbY={24.5} />
-    <hole name="H2" diameter="3.2mm" pcbX={31.5} pcbY={24.5} />
-    <hole name="H3" diameter="3.2mm" pcbX={-31.5} pcbY={-24.5} />
-    <hole name="H4" diameter="3.2mm" pcbX={31.5} pcbY={-24.5} />
-
     <silkscreentext
       text="ESP32-P4 SPI DISPLAY UVC CAPTURE"
-      pcbX={3}
-      pcbY={25.5}
-      fontSize="1.1mm"
+      pcbX={17.3}
+      pcbY={0}
+      pcbRotation={90}
+      fontSize="0.7mm"
       anchorAlignment="center"
     />
     <silkscreentext
       text="DISPLAY"
-      pcbX={-33}
+      pcbX={-17.3}
       pcbY={0}
       pcbRotation={90}
       fontSize="1mm"
@@ -1212,7 +1212,7 @@ export default () => (
     />
     <silkscreentext
       text="HOST"
-      pcbX={-23.5}
+      pcbX={-13.5}
       pcbY={0}
       pcbRotation={90}
       fontSize="1mm"
@@ -1220,15 +1220,15 @@ export default () => (
     />
     <silkscreentext
       text="BOOT"
-      pcbX={26}
-      pcbY={24}
+      pcbX={13.2}
+      pcbY={18.5}
       fontSize="0.9mm"
       anchorAlignment="center"
     />
     <silkscreentext
       text="RESET"
-      pcbX={-14}
-      pcbY={26}
+      pcbX={7.5}
+      pcbY={18.5}
       fontSize="0.9mm"
       anchorAlignment="center"
     />

@@ -14,7 +14,7 @@ needed.
 
 USB-C supplies the capture side as well as carrying UVC data. Display-header
 VCC remains pass-through-only and is isolated from USB VBUS and the local
-rails. The board is 68 x 54 mm and uses four copper layers: top/bottom signals,
+rails. The board is 35.7 x 38.72 mm and uses four copper layers: top/bottom signals,
 inner1 GND, and inner2 3.3 V, with local 1.2 V routing on the bottom.
 
 ## Header pinout
@@ -85,11 +85,11 @@ and microvias are not used. The sole intentional via-in-pad is the grounded via
 in the ESP32-P4 exposed paddle; request bottom-side tenting or plugging to reduce
 solder wicking.
 
-The current routed output is **not order-ready**. PCB DRC still reports a crystal
-trace/via contact and two FLASH_D-area clearance violations, and two decoupling
-routes exceed their annotated 10 mm maximum. The existing fabrication directory
-was generated for an earlier blind-via revision and is superseded; do not upload
-its ZIP files. Generate a fresh PTH-only package only after DRC and shorts pass.
+The current routed output is **not order-ready**. With tscircuit 0.0.2325, PCB
+clearance DRC passes, but five routes exceed their annotated maximum length.
+The existing fabrication directory was generated for an earlier blind-via
+revision and is superseded; do not upload its ZIP files. Generate a fresh
+PTH-only package only after DRC and shorts pass.
 
 Before ordering, also confirm the exact display header orientation, QFN104
 exposed-pad process, USB-C mechanical fit, and the four-layer stackup. Tune the
