@@ -886,6 +886,7 @@ export default () => (
       to=".Y1 > .pin1"
       width="0.15mm"
       maxLength="10mm"
+      maxViaCount={0}
       pcbPath={[
         ".U_MCU > .pin100",
         { x: -2.975, y: 6.5 },
@@ -899,6 +900,7 @@ export default () => (
       to=".Y1 > .pin3"
       width="0.15mm"
       maxLength="10mm"
+      maxViaCount={0}
       pcbPath={[
         ".U_MCU > .pin99",
         { x: -2.625, y: 6 },
