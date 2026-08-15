@@ -134,6 +134,7 @@ const displayPcbLabels = {
   pin14: "TIRQ",
 } as const;
 
+/** Manufacturer-compatible 1x14 HCTL footprint in the board's vertical row. */
 const DisplayHeaderFootprint = () => (
   <footprint>
     {Array.from({ length: 14 }, (_, index) => (
@@ -143,7 +144,7 @@ const DisplayHeaderFootprint = () => (
           pcbX={0}
           pcbY={(6.5 - index) * 2.54}
           outerDiameter="1.7mm"
-          holeDiameter="1mm"
+          holeDiameter="1.1mm"
           shape="circle"
         />
       </Fragment>
@@ -151,17 +152,17 @@ const DisplayHeaderFootprint = () => (
     <silkscreenrect
       pcbX={0}
       pcbY={0}
-      width="2.54mm"
+      width="2.5mm"
       height="35.56mm"
       strokeWidth="0.2mm"
     />
     <courtyardoutline
       outline={[
-        { x: -1.77, y: -18.28 },
-        { x: 1.77, y: -18.28 },
-        { x: 1.77, y: 18.28 },
-        { x: -1.77, y: 18.28 },
-        { x: -1.77, y: -18.28 },
+        { x: -1.55, y: -18.31 },
+        { x: 1.55, y: -18.31 },
+        { x: 1.55, y: 18.31 },
+        { x: -1.55, y: 18.31 },
+        { x: -1.55, y: -18.31 },
       ]}
     />
   </footprint>
@@ -327,6 +328,8 @@ export default () => (
       pinCount={14}
       pitch="2.54mm"
       gender="female"
+      supplierPartNumbers={{ jlcpcb: ["C2897377"] }}
+      manufacturerPartNumber="PM254-1-14-Z-8.5"
       footprint={<DisplayHeaderFootprint />}
       pcbX={-16.5}
       pcbY={0}
@@ -345,6 +348,8 @@ export default () => (
       pinCount={14}
       pitch="2.54mm"
       gender="male"
+      supplierPartNumbers={{ jlcpcb: ["C2894937"] }}
+      manufacturerPartNumber="PZ254-1-14-Z-8.5"
       footprint={<DisplayHeaderFootprint />}
       pcbX={-12.8}
       pcbY={0}

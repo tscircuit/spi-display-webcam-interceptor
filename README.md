@@ -85,6 +85,13 @@ and microvias are not used. The sole intentional via-in-pad is the grounded via
 in the ESP32-P4 exposed paddle; request bottom-side tenting or plugging to reduce
 solder wicking.
 
+The two 2.54 mm headers now use explicit, assembly-supported JLCPCB parts:
+`J_DISPLAY` is the vertical 1x14 female HCTL `PM254-1-14-Z-8.5`
+(`C2897377`), and `J_HOST` is the vertical 1x14 male HCTL
+`PZ254-1-14-Z-8.5` (`C2894937`). Both footprints use 1.10 mm finished drills.
+JLCPCB lists both as extended through-hole parts installed by wave soldering and
+notes that an assembly fixture is required.
+
 The manufacturing-blocker pass adds separate 10 uF capacitors at `VDD_LDO` and
 `VDD_DCDCC`, keeps their 100 nF capacitors beside the MCU, adds the required
 GPIO36 boot strap, and removes the core-inductor/output-capacitor overlap. The
