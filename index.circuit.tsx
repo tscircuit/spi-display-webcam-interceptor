@@ -331,6 +331,14 @@ export default () => (
       supplierPartNumbers={{ jlcpcb: ["C2897377"] }}
       manufacturerPartNumber="PM254-1-14-Z-8.5"
       footprint={<DisplayHeaderFootprint />}
+      cadModel={{
+        objUrl:
+          "https://modelcdn.tscircuit.com/easyeda_models/assets/C2897377.obj?uuid=7ac80a5dae2842a19e077dc2a4340131",
+        stepUrl:
+          "https://modelcdn.tscircuit.com/easyeda_models/assets/C2897377.step?uuid=7ac80a5dae2842a19e077dc2a4340131",
+        pcbRotationOffset: -90,
+        modelOriginPosition: { x: 0, y: 0.0000127, z: -0.300006 },
+      }}
       pcbX={-16.5}
       pcbY={0}
       schSheetName="SIGNALS"
@@ -351,6 +359,14 @@ export default () => (
       supplierPartNumbers={{ jlcpcb: ["C2894937"] }}
       manufacturerPartNumber="PZ254-1-14-Z-8.5"
       footprint={<DisplayHeaderFootprint />}
+      cadModel={{
+        objUrl:
+          "https://modelcdn.tscircuit.com/easyeda_models/assets/C2894937.obj?uuid=08b06314cd6a40fe8bae6f2b80f3ecbb",
+        stepUrl:
+          "https://modelcdn.tscircuit.com/easyeda_models/assets/C2894937.step?uuid=08b06314cd6a40fe8bae6f2b80f3ecbb",
+        pcbRotationOffset: -90,
+        modelOriginPosition: { x: 0.0000632, y: 0.0000127, z: -0.000006 },
+      }}
       pcbX={-12.8}
       pcbY={0}
       schSheetName="SIGNALS"
