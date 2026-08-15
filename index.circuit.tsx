@@ -55,10 +55,27 @@ const usbCPinAttributes = {
   16: { requiresGround: true, mustBeConnected: true },
 } as NonNullable<SmdUsbCProps["pinAttributes"]>;
 
-/** Keep the published USB-C footprint while arranging its built-in symbol. */
-const SmdUsbCWithFixedSchematic = (props: SmdUsbCProps) =>
-  cloneElement(SmdUsbC(props), {
+/** Add the connector courtyard while arranging its built-in symbol. */
+const SmdUsbCWithFixedSchematic = (props: SmdUsbCProps) => {
+  const usbC = SmdUsbC(props);
+  const footprintWithCourtyard = cloneElement(
+    usbC.props.footprint,
+    {},
+    usbC.props.footprint.props.children,
+    <courtyardoutline
+      outline={[
+        { x: -5.18, y: -5.37 },
+        { x: 5.18, y: -5.37 },
+        { x: 5.18, y: 3.2 },
+        { x: -5.18, y: 3.2 },
+        { x: -5.18, y: -5.37 },
+      ]}
+    />,
+  );
+
+  return cloneElement(usbC, {
     pinAttributes: props.pinAttributes ?? usbCPinAttributes,
+    footprint: footprintWithCourtyard,
     schPortArrangement: {
       leftSide: { pins: [], direction: "top-to-bottom" },
       rightSide: {
@@ -81,6 +98,7 @@ const SmdUsbCWithFixedSchematic = (props: SmdUsbCProps) =>
     },
     schPinStyle: {},
   });
+};
 
 const displayPinLabels = {
   pin1: "VCC",
@@ -168,22 +186,22 @@ const p4ThreeVThreePins = [9, 21, 62, 85, 96, 75, 77, 101, 102] as const;
 const p4CorePins = [26, 54, 76, 91] as const;
 
 const p4ThreeVThreeCaps = [
-  { pin: 9, name: "C_LP", x: -5.5, y: 7.4 },
-  { pin: 21, name: "C_IO0", x: -5.8, y: 0.4 },
-  { pin: 62, name: "C_IO4", x: 9.2, y: 2 },
-  { pin: 85, name: "C_IO5", x: 2.2, y: 10.5 },
-  { pin: 96, name: "C_IO6", x: 4.5, y: 10 },
-  { pin: 75, name: "C_LDO", x: 6.5, y: 12.2 },
-  { pin: 77, name: "C_DCDCC", x: 8.5, y: 12.5 },
-  { pin: 101, name: "C_ANA", x: -5, y: 10.5 },
-  { pin: 102, name: "C_BAT_100N", x: -7, y: 10.5 },
+  { pin: 9, name: "C_LP", x: -7, y: 7.4 },
+  { pin: 21, name: "C_IO0", x: -7.3, y: 1.9 },
+  { pin: 62, name: "C_IO4", x: 7.1, y: 1.8 },
+  { pin: 85, name: "C_IO5", x: 3.2, y: 11.5 },
+  { pin: 96, name: "C_IO6", x: 5, y: 12.7 },
+  { pin: 75, name: "C_LDO", x: 7.1, y: 7.6 },
+  { pin: 77, name: "C_DCDCC", x: 7.1, y: 8.6 },
+  { pin: 101, name: "C_ANA", x: -5, y: 12 },
+  { pin: 102, name: "C_BAT_100N", x: -7, y: 12 },
 ] as const;
 
 const p4CoreCaps = [
-  { pin: 26, name: "C_HP0", x: -5.8, y: -1.5, rotation: 0 },
+  { pin: 26, name: "C_HP0", x: -7.3, y: -1.5, rotation: 0 },
   { pin: 54, name: "C_HP1", x: 9.2, y: -1, rotation: 0 },
-  { pin: 76, name: "C_HP2", x: 8.3, y: 10.5, rotation: -90 },
-  { pin: 91, name: "C_HP3", x: 2.2, y: 9.2, rotation: 0 },
+  { pin: 76, name: "C_HP2", x: 7.1, y: 9.6, rotation: 0 },
+  { pin: 91, name: "C_HP3", x: 0.7, y: 10.7, rotation: 0 },
 ] as const;
 
 type PlaneNet = "GND" | "V3V3" | "VBUS" | "V1V2";
@@ -232,10 +250,11 @@ const McuPlaneDecoupler = ({
       schY={schY}
       schOrientation="vertical"
     />
-    <NetTrace
+    <trace
       from={`.U_MCU > .pin${targetPin}`}
-      net={powerNet}
+      to={`.${name} > .pin1`}
       width="0.25mm"
+      maxLength="10mm"
     />
     <NetTrace from={`.${name} > .pin1`} net={powerNet} />
     <NetTrace from={`.${name} > .pin2`} net="GND" />
@@ -243,12 +262,7 @@ const McuPlaneDecoupler = ({
 );
 
 export default () => (
-  <board
-    width="35.7mm"
-    height="38.72mm"
-    layers={4}
-    minViaHoleDiameter="0.3mm"
-  >
+  <board width="35.7mm" height="38.74mm" layers={4} minViaHoleDiameter="0.3mm">
     <net name="GND" isGroundNet />
     <net name="V3V3" isPowerNet />
     <net name="VBUS" isPowerNet />
@@ -354,7 +368,7 @@ export default () => (
     ))}
     <NetTrace from=".J_HOST > .pin2" net="GND" width="0.6mm" />
 
-    <ESP32_P4NRW32X name="U_MCU" pcbX={2} pcbY={3} schHeight={10.6} />
+    <ESP32_P4NRW32X name="U_MCU" pcbX={0.5} pcbY={4.5} schHeight={10.6} />
 
     <schematicbox
       name="U_MCU_IO"
@@ -515,10 +529,11 @@ export default () => (
         pin2: "USB_DP",
         pin3: "CHIP_PU",
         pin4: "GPIO35",
+        pin5: "GPIO36",
       }}
       schPinArrangement={{
         leftSide: ["pin1", "pin2"],
-        rightSide: ["pin3", "pin4"],
+        rightSide: ["pin3", "pin4", "pin5"],
       }}
     />
 
@@ -600,36 +615,79 @@ export default () => (
       capacitance="10uF"
       maxDecouplingTraceLength={10}
       footprint="0603"
-      pcbX={14}
-      pcbY={5.5}
+      pcbX={8.9}
+      pcbY={6.7}
+      pcbRotation={-90}
       schSheetName="POWER"
       schSectionName="MCU_POWER"
       schX={9}
       schY={8}
       schOrientation="vertical"
     />
+    <trace
+      from=".U_MCU > .pin75"
+      to=".C_LDO_BULK > .pin1"
+      width="0.4mm"
+      maxLength="10mm"
+    />
     <NetTrace from=".C_LDO_BULK > .pin1" net="V3V3" width="0.4mm" />
-    <NetTrace from=".C_LDO_BULK > .pin2" net="GND" />
+    <via
+      name="C_LDO_BULK_GND_VIA"
+      pcbX={8.9}
+      pcbY={5.05}
+      holeDiameter="0.3mm"
+      outerDiameter="0.6mm"
+      connectsTo={[".C_LDO_BULK > .pin2", "net.GND"]}
+    />
+    <capacitor
+      name="C_DCDCC_BULK"
+      capacitance="10uF"
+      maxDecouplingTraceLength={10}
+      footprint="0603"
+      pcbX={8.9}
+      pcbY={9.8}
+      pcbRotation={90}
+      schSheetName="POWER"
+      schSectionName="MCU_POWER"
+      schX={11.5}
+      schY={6.5}
+      schOrientation="vertical"
+    />
+    <trace
+      from=".U_MCU > .pin77"
+      to=".C_DCDCC_BULK > .pin1"
+      width="0.4mm"
+      maxLength="10mm"
+    />
+    <NetTrace from=".C_DCDCC_BULK > .pin1" net="V3V3" width="0.4mm" />
+    <via
+      name="C_DCDCC_BULK_GND_VIA"
+      pcbX={8.9}
+      pcbY={11.45}
+      holeDiameter="0.3mm"
+      outerDiameter="0.6mm"
+      connectsTo={[".C_DCDCC_BULK > .pin2", "net.GND"]}
+    />
     <capacitor
       name="C_BAT_BULK"
       capacitance="10uF"
       maxDecouplingTraceLength={10}
       footprint="0603"
-      pcbX={-6}
-      pcbY={12.5}
+      pcbX={-7.5}
+      pcbY={14}
       schSheetName="POWER"
       schSectionName="MCU_POWER"
       schX={11.5}
       schY={8}
       schOrientation="vertical"
     />
-    <NetTrace from=".C_BAT_BULK > .pin1" net="V3V3" />
+    <trace from=".C_BAT_BULK > .pin1" to=".C_BAT_100N > .pin1" />
     <NetTrace from=".C_BAT_BULK > .pin2" net="GND" />
 
     <TLV62569DRLR
       name="U_CORE_BUCK"
-      pcbX={8.9}
-      pcbY={8}
+      pcbX={11.6}
+      pcbY={7.5}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
       schX={-11}
@@ -637,8 +695,8 @@ export default () => (
     />
     <DFE201210U_2R2M_P2
       name="L_CORE"
-      pcbX={12}
-      pcbY={8}
+      pcbX={14.3}
+      pcbY={7.5}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
       schX={-7}
@@ -649,8 +707,8 @@ export default () => (
       capacitance="4.7uF"
       maxDecouplingTraceLength={10}
       footprint="0603"
-      pcbX={8.8}
-      pcbY={5}
+      pcbX={10.8}
+      pcbY={4.2}
       pcbRotation={-90}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -664,7 +722,7 @@ export default () => (
       maxDecouplingTraceLength={10}
       footprint="0805"
       pcbX={16}
-      pcbY={8}
+      pcbY={6}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
       schX={-3}
@@ -675,8 +733,8 @@ export default () => (
       name="R_CORE_TOP"
       resistance="499kohm"
       footprint="0402"
-      pcbX={12.2}
-      pcbY={11}
+      pcbX={12.5}
+      pcbY={10.5}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
       schX={-7}
@@ -686,8 +744,8 @@ export default () => (
       name="R_CORE_BOT"
       resistance="499kohm"
       footprint="0402"
-      pcbX={14.2}
-      pcbY={11}
+      pcbX={14.5}
+      pcbY={10.5}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
       schX={-3}
@@ -698,8 +756,8 @@ export default () => (
       capacitance="22pF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={12}
-      pcbY={12.5}
+      pcbX={13.5}
+      pcbY={12}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
       schX={-5}
@@ -726,8 +784,9 @@ export default () => (
 
     <W25Q128JVSIQ
       name="U_FLASH"
-      pcbX={0.1}
-      pcbY={-7.5}
+      pcbX={-1.9}
+      pcbY={-6.8}
+      pcbRotation={90}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-5.5}
@@ -745,8 +804,8 @@ export default () => (
       name="R_FLASH_CS"
       resistance="10kohm"
       footprint="0402"
-      pcbX={4.1}
-      pcbY={-7.5}
+      pcbX={-0.8}
+      pcbY={-11}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-5.5}
@@ -759,8 +818,8 @@ export default () => (
       capacitance="100nF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={4.1}
-      pcbY={-6.3}
+      pcbX={3.8}
+      pcbY={-6}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-1.7}
@@ -775,8 +834,8 @@ export default () => (
       capacitance="1uF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={4.1}
-      pcbY={-3.8}
+      pcbX={2}
+      pcbY={-2.7}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={0.3}
@@ -788,8 +847,8 @@ export default () => (
 
     <E3SB40E000030E
       name="Y1"
-      pcbX={-1.5}
-      pcbY={12.5}
+      pcbX={-0.5}
+      pcbY={15.8}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-6.5}
@@ -800,8 +859,8 @@ export default () => (
       capacitance="12pF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={-4}
-      pcbY={15}
+      pcbX={-3.6}
+      pcbY={14.9}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-3.5}
@@ -813,16 +872,43 @@ export default () => (
       capacitance="12pF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={1}
-      pcbY={15}
+      pcbX={2.6}
+      pcbY={16.7}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-0.5}
       schY={-8.2}
       schOrientation="vertical"
     />
-    <trace from=".U_MCU > .pin100" to=".Y1 > .pin1" />
-    <trace from=".U_MCU > .pin99" to=".Y1 > .pin3" />
+    <trace
+      name="XTAL_P"
+      from=".U_MCU > .pin100"
+      to=".Y1 > .pin1"
+      width="0.15mm"
+      maxLength="10mm"
+      maxViaCount={0}
+      pcbPath={[
+        ".U_MCU > .pin100",
+        { x: -2.975, y: 6.5 },
+        { x: -2.975, y: 7.5 },
+        ".Y1 > .pin1",
+      ]}
+    />
+    <trace
+      name="XTAL_N"
+      from=".U_MCU > .pin99"
+      to=".Y1 > .pin3"
+      width="0.15mm"
+      maxLength="10mm"
+      maxViaCount={0}
+      pcbPath={[
+        ".U_MCU > .pin99",
+        { x: -2.625, y: 6 },
+        { x: 1, y: 8.5 },
+        { x: 1, y: 12.15 },
+        ".Y1 > .pin3",
+      ]}
+    />
     <trace from=".C_XTAL_P > .pin1" to=".Y1 > .pin1" />
     <trace from=".C_XTAL_N > .pin1" to=".Y1 > .pin3" />
     <NetTrace from=".Y1 > .pin2" net="GND" />
@@ -863,8 +949,8 @@ export default () => (
       capacitance="1uF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={9.5}
-      pcbY={3}
+      pcbX={7.1}
+      pcbY={5.45}
       schSheetName="POWER"
       schSectionName="MCU_POWER"
       schX={8.4}
@@ -876,16 +962,16 @@ export default () => (
       capacitance="1uF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={11.5}
-      pcbY={4}
+      pcbX={7.1}
+      pcbY={6.6}
       schSheetName="POWER"
       schSectionName="MCU_POWER"
       schX={11.2}
       schY={5.5}
       schOrientation="vertical"
     />
-    <trace from=".C_VOUT3 > .pin1" to=".U_MCU > .pin73" />
-    <trace from=".C_VOUT4 > .pin1" to=".U_MCU > .pin74" />
+    <trace from=".C_VOUT3 > .pin1" to=".U_MCU > .pin73" maxLength="6mm" />
+    <trace from=".C_VOUT4 > .pin1" to=".U_MCU > .pin74" maxLength="6mm" />
     <NetTrace from=".C_VOUT3 > .pin2" net="GND" />
     <NetTrace from=".C_VOUT4 > .pin2" net="GND" />
 
@@ -903,9 +989,9 @@ export default () => (
     <NetTrace from=".R_USBPHY > .pin1" net="V3V3" />
     <trace from=".R_USBPHY > .pin2" to=".U_MCU > .pin51" />
     {[
-      { name: "C_USBPHY_10N", value: "10nF", x: 10, y: -5.5 },
-      { name: "C_USBPHY_100N", value: "100nF", x: 12, y: -5.5 },
-      { name: "C_USBPHY_4U7", value: "4.7uF", x: 14.5, y: -5.5 },
+      { name: "C_USBPHY_10N", value: "10nF", x: 8.5, y: -5.5 },
+      { name: "C_USBPHY_100N", value: "100nF", x: 10.5, y: -5.5 },
+      { name: "C_USBPHY_4U7", value: "4.7uF", x: 13, y: -5.5 },
     ].map((cap, index) => (
       <Fragment key={cap.name}>
         <capacitor
@@ -935,22 +1021,35 @@ export default () => (
     <USBLC6_2SC6
       name="U_ESD"
       pcbX={5.1}
-      pcbY={-10.2}
+      pcbY={-9.7}
       schSheetName="SIGNALS"
       schSectionName="USB"
       schX={5.6}
       schY={-3}
     />
-    <trace from=".J_USB > .pin8" to=".U_ESD > .pin1" width="0.25mm" />
-    <trace from=".J_USB > .pin10" to=".U_ESD > .pin1" width="0.25mm" />
-    <trace from=".J_USB > .pin7" to=".U_ESD > .pin3" width="0.25mm" />
-    <trace from=".J_USB > .pin9" to=".U_ESD > .pin3" width="0.25mm" />
+    {/* The USBLC6 channels are interchangeable. Assigning DM to its left
+        channel and DP to its right channel preserves lane order on the PCB. */}
+    <trace from=".J_USB > .pin7" to=".U_ESD > .pin1" width="0.18mm" />
+    <trace
+      name="USB_HS_DM_CONN"
+      from=".J_USB > .pin9"
+      to=".U_ESD > .pin1"
+      width="0.18mm"
+    />
+    <trace from=".J_USB > .pin8" to=".U_ESD > .pin3" width="0.18mm" />
+    <trace
+      name="USB_HS_DP_CONN"
+      from=".J_USB > .pin10"
+      to=".U_ESD > .pin3"
+      width="0.18mm"
+    />
     <resistor
       name="R_USB_DP"
       resistance="27ohm"
       footprint="0402"
-      pcbX={6}
-      pcbY={-5}
+      pcbX={4.65}
+      pcbY={-2}
+      pcbRotation={90}
       schSheetName="SIGNALS"
       schSectionName="USB"
       schX={8.1}
@@ -960,27 +1059,62 @@ export default () => (
       name="R_USB_DM"
       resistance="27ohm"
       footprint="0402"
-      pcbX={4}
-      pcbY={-5}
+      pcbX={3.65}
+      pcbY={-2}
+      pcbRotation={90}
       schSheetName="SIGNALS"
       schSectionName="USB"
       schX={8.1}
       schY={-4}
     />
     <trace
-      name="USB_HS_DP"
+      name="USB_HS_DM_POST_ESD"
       from=".U_ESD > .pin6"
-      to=".R_USB_DP > .pin1"
-      width="0.2mm"
-    />
-    <trace from=".R_USB_DP > .pin2" to=".U_MCU > .pin50" width="0.2mm" />
-    <trace
-      name="USB_HS_DM"
-      from=".U_ESD > .pin4"
       to=".R_USB_DM > .pin1"
-      width="0.2mm"
+      width="0.18mm"
+      maxViaCount={0}
+      pcbPath={[
+        ".U_ESD > .pin6",
+        { x: -0.95, y: 1.8 },
+        { x: 0, y: 2.4 },
+        { x: 0, y: 5 },
+        { x: -1.45, y: 6.5 },
+        ".R_USB_DM > .pin1",
+      ]}
     />
-    <trace from=".R_USB_DM > .pin2" to=".U_MCU > .pin49" width="0.2mm" />
+    <trace
+      name="USB_HS_DP_POST_ESD"
+      from=".U_ESD > .pin4"
+      to=".R_USB_DP > .pin1"
+      width="0.18mm"
+      maxViaCount={0}
+      pcbPath={[
+        ".U_ESD > .pin4",
+        { x: 0.95, y: 1.8 },
+        { x: 1.64, y: 3.4 },
+        { x: 1.1, y: 5 },
+        { x: -0.45, y: 6.5 },
+        ".R_USB_DP > .pin1",
+      ]}
+    />
+    <trace
+      name="USB_HS_DM_MCU"
+      from=".R_USB_DM > .pin2"
+      to=".U_MCU > .pin49"
+      width="0.1mm"
+      maxViaCount={0}
+      pcbPathRelativeTo=".R_USB_DM > .pin2"
+      pcbPath={[".R_USB_DM > .pin2", { x: 0.8, y: -0.175 }, ".U_MCU > .pin49"]}
+    />
+    <trace
+      name="USB_HS_DP_MCU"
+      from=".R_USB_DP > .pin2"
+      to=".U_MCU > .pin50"
+      width="0.1mm"
+      maxViaCount={0}
+      pcbPathRelativeTo=".R_USB_DP > .pin2"
+      pcbPath={[".R_USB_DP > .pin2", { x: 0.8, y: 0.475 }, ".U_MCU > .pin50"]}
+    />
     <SKRPACE010
       name="SW_BOOT"
       pcbX={13.3}
@@ -1005,6 +1139,20 @@ export default () => (
     <trace from=".R_BOOT_PU > .pin2" to=".U_MCU > .pin66" />
     <trace from=".U_MCU > .pin66" to=".SW_BOOT > .pin1" />
     <NetTrace from=".SW_BOOT > .pin2" net="GND" />
+    <resistor
+      name="R_GPIO36_PU"
+      resistance="10kohm"
+      footprint="0402"
+      pcbX={7.2}
+      pcbY={4}
+      pcbRotation={90}
+      schSheetName="SIGNALS"
+      schSectionName="USB"
+      schX={8}
+      schY={6}
+    />
+    <NetTrace from=".R_GPIO36_PU > .pin1" net="V3V3" />
+    <trace from=".R_GPIO36_PU > .pin2" to=".U_MCU > .pin68" />
 
     <SKRPACE010
       name="SW_RESET"
@@ -1031,7 +1179,7 @@ export default () => (
       capacitance="1uF"
       maxDecouplingTraceLength={20}
       footprint="0402"
-      pcbX={5.2}
+      pcbX={3.5}
       pcbY={14}
       schSheetName="SIGNALS"
       schSectionName="USB"
@@ -1048,7 +1196,7 @@ export default () => (
 
     <SmdUsbCWithFixedSchematic
       name="J_USB"
-      pcbX={2}
+      pcbX={2.35}
       pcbY={-15.46}
       schSheetName="SIGNALS"
       schSectionName="USB"
@@ -1084,7 +1232,7 @@ export default () => (
       name="R_CC2"
       resistance="5.1kohm"
       footprint="0402"
-      pcbX={8}
+      pcbX={-6.5}
       pcbY={-18.5}
       schSheetName="SIGNALS"
       schSectionName="USB"
@@ -1100,7 +1248,7 @@ export default () => (
 
     <TLV62569DRLR
       name="U_3V3_BUCK"
-      pcbX={8.3}
+      pcbX={9.05}
       pcbY={-13}
       schSheetName="POWER"
       schSectionName="THREE_VOLT_POWER"
