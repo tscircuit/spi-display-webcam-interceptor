@@ -134,6 +134,7 @@ const displayPcbLabels = {
   pin14: "TIRQ",
 } as const;
 
+/** Manufacturer-compatible 1x14 HCTL footprint in the board's vertical row. */
 const DisplayHeaderFootprint = () => (
   <footprint>
     {Array.from({ length: 14 }, (_, index) => (
@@ -143,7 +144,7 @@ const DisplayHeaderFootprint = () => (
           pcbX={0}
           pcbY={(6.5 - index) * 2.54}
           outerDiameter="1.7mm"
-          holeDiameter="1mm"
+          holeDiameter="1.1mm"
           shape="circle"
         />
       </Fragment>
@@ -151,17 +152,17 @@ const DisplayHeaderFootprint = () => (
     <silkscreenrect
       pcbX={0}
       pcbY={0}
-      width="2.54mm"
+      width="2.5mm"
       height="35.56mm"
       strokeWidth="0.2mm"
     />
     <courtyardoutline
       outline={[
-        { x: -1.77, y: -18.28 },
-        { x: 1.77, y: -18.28 },
-        { x: 1.77, y: 18.28 },
-        { x: -1.77, y: 18.28 },
-        { x: -1.77, y: -18.28 },
+        { x: -1.55, y: -18.31 },
+        { x: 1.55, y: -18.31 },
+        { x: 1.55, y: 18.31 },
+        { x: -1.55, y: 18.31 },
+        { x: -1.55, y: -18.31 },
       ]}
     />
   </footprint>
@@ -262,7 +263,13 @@ const McuPlaneDecoupler = ({
 );
 
 export default () => (
-  <board width="35.7mm" height="38.74mm" layers={4} minViaHoleDiameter="0.3mm">
+  <board
+    width="35.7mm"
+    height="38.74mm"
+    layers={4}
+    minViaHoleDiameter="0.3mm"
+    minViaPadDiameter="0.6mm"
+  >
     <net name="GND" isGroundNet />
     <net name="V3V3" isPowerNet />
     <net name="VBUS" isPowerNet />
@@ -327,7 +334,17 @@ export default () => (
       pinCount={14}
       pitch="2.54mm"
       gender="female"
+      supplierPartNumbers={{ jlcpcb: ["C2897377"] }}
+      manufacturerPartNumber="PM254-1-14-Z-8.5"
       footprint={<DisplayHeaderFootprint />}
+      cadModel={{
+        objUrl:
+          "https://modelcdn.tscircuit.com/easyeda_models/assets/C2897377.obj?uuid=7ac80a5dae2842a19e077dc2a4340131",
+        stepUrl:
+          "https://modelcdn.tscircuit.com/easyeda_models/assets/C2897377.step?uuid=7ac80a5dae2842a19e077dc2a4340131",
+        pcbRotationOffset: -90,
+        modelOriginPosition: { x: 0, y: 0.0000127, z: -0.300006 },
+      }}
       pcbX={-16.5}
       pcbY={0}
       schSheetName="SIGNALS"
@@ -345,7 +362,17 @@ export default () => (
       pinCount={14}
       pitch="2.54mm"
       gender="male"
+      supplierPartNumbers={{ jlcpcb: ["C2894937"] }}
+      manufacturerPartNumber="PZ254-1-14-Z-8.5"
       footprint={<DisplayHeaderFootprint />}
+      cadModel={{
+        objUrl:
+          "https://modelcdn.tscircuit.com/easyeda_models/assets/C2894937.obj?uuid=08b06314cd6a40fe8bae6f2b80f3ecbb",
+        stepUrl:
+          "https://modelcdn.tscircuit.com/easyeda_models/assets/C2894937.step?uuid=08b06314cd6a40fe8bae6f2b80f3ecbb",
+        pcbRotationOffset: -90,
+        modelOriginPosition: { x: 0.0000632, y: 0.0000127, z: -0.000006 },
+      }}
       pcbX={-12.8}
       pcbY={0}
       schSheetName="SIGNALS"
