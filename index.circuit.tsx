@@ -53,7 +53,11 @@ const usbCPinAttributes = {
   },
   15: { requiresGround: true, mustBeConnected: true },
   16: { requiresGround: true, mustBeConnected: true },
-} as NonNullable<SmdUsbCProps["pinAttributes"]>;
+  17: { requiresGround: true, mustBeConnected: true },
+  18: { requiresGround: true, mustBeConnected: true },
+  19: { requiresGround: true, mustBeConnected: true },
+  20: { requiresGround: true, mustBeConnected: true },
+} as unknown as NonNullable<SmdUsbCProps["pinAttributes"]>;
 
 /** Add the connector courtyard while arranging its built-in symbol. */
 const SmdUsbCWithFixedSchematic = (props: SmdUsbCProps) => {
@@ -74,6 +78,13 @@ const SmdUsbCWithFixedSchematic = (props: SmdUsbCProps) => {
   );
 
   return cloneElement(usbC, {
+    pinLabels: {
+      ...usbC.props.pinLabels,
+      17: ["SHIELD1", "alt_0"],
+      18: ["SHIELD2", "alt_1"],
+      19: ["SHIELD3", "alt_2"],
+      20: ["SHIELD4", "alt_3"],
+    },
     pinAttributes: props.pinAttributes ?? usbCPinAttributes,
     footprint: footprintWithCourtyard,
     schPortArrangement: {
@@ -92,6 +103,10 @@ const SmdUsbCWithFixedSchematic = (props: SmdUsbCProps) => {
           "CC2",
           "SBU1",
           "SBU2",
+          "SHIELD1",
+          "SHIELD2",
+          "SHIELD3",
+          "SHIELD4",
         ],
         direction: "top-to-bottom",
       },
@@ -1236,6 +1251,14 @@ export default () => (
     <trace from=".J_USB > .pin16" to=".J_USB > .pin15" width="0.5mm" />
     <NetTrace from=".J_USB > .pin1" net="GND" width="0.5mm" />
     <NetTrace from=".J_USB > .pin15" net="GND" width="0.5mm" />
+    {[17, 18, 19, 20].map((pin) => (
+      <NetTrace
+        key={`usb-shield-gnd-${pin}`}
+        from={`.J_USB > .pin${pin}`}
+        net="GND"
+        width="0.5mm"
+      />
+    ))}
     {[3, 4, 13, 14].map((pin) => (
       <NetTrace
         key={`usb-vbus-${pin}`}
