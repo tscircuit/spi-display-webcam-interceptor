@@ -263,7 +263,13 @@ const McuPlaneDecoupler = ({
 );
 
 export default () => (
-  <board width="35.7mm" height="38.74mm" layers={4} minViaHoleDiameter="0.3mm">
+  <board
+    width="35.7mm"
+    height="38.74mm"
+    layers={4}
+    minViaHoleDiameter="0.3mm"
+    minViaPadDiameter="0.6mm"
+  >
     <net name="GND" isGroundNet />
     <net name="V3V3" isPowerNet />
     <net name="VBUS" isPowerNet />
