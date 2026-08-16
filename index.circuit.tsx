@@ -202,22 +202,22 @@ const p4ThreeVThreePins = [9, 21, 62, 85, 96, 75, 77, 101, 102] as const;
 const p4CorePins = [26, 54, 76, 91] as const;
 
 const p4ThreeVThreeCaps = [
-  { pin: 9, name: "C_LP", x: -7, y: 7.4 },
-  { pin: 21, name: "C_IO0", x: -7.3, y: 1.9 },
-  { pin: 62, name: "C_IO4", x: 7.1, y: 1.8 },
-  { pin: 85, name: "C_IO5", x: 3.2, y: 11.5 },
-  { pin: 96, name: "C_IO6", x: 5, y: 12.7 },
-  { pin: 75, name: "C_LDO", x: 7.1, y: 7.6 },
-  { pin: 77, name: "C_DCDCC", x: 7.1, y: 8.6 },
+  { pin: 9, name: "C_LP", x: -9.2, y: 7.4 },
+  { pin: 21, name: "C_IO0", x: -9.2, y: 1.9 },
+  { pin: 62, name: "C_IO4", x: 8.1, y: 3.3 },
+  { pin: 85, name: "C_IO5", x: 3.2, y: 12.2 },
+  { pin: 96, name: "C_IO6", x: -0.5, y: 13 },
+  { pin: 75, name: "C_LDO", x: 7.2, y: 8.2 },
+  { pin: 77, name: "C_DCDCC", x: 8.5, y: 10.4 },
   { pin: 101, name: "C_ANA", x: -5, y: 12 },
   { pin: 102, name: "C_BAT_100N", x: -7, y: 12 },
 ] as const;
 
 const p4CoreCaps = [
-  { pin: 26, name: "C_HP0", x: -7.3, y: -1.5, rotation: 0 },
+  { pin: 26, name: "C_HP0", x: -9.2, y: -1.5, rotation: 0 },
   { pin: 54, name: "C_HP1", x: 9.2, y: -1, rotation: 0 },
-  { pin: 76, name: "C_HP2", x: 7.1, y: 9.6, rotation: 0 },
-  { pin: 91, name: "C_HP3", x: 0.7, y: 10.7, rotation: 0 },
+  { pin: 76, name: "C_HP2", x: 8.1, y: 9.3, rotation: 0 },
+  { pin: 91, name: "C_HP3", x: 2.5, y: 11.2, rotation: 0 },
 ] as const;
 
 type PlaneNet = "GND" | "V3V3" | "VBUS" | "V1V2";
@@ -226,10 +226,16 @@ type NetTraceProps = {
   from: string;
   net: PlaneNet;
   width?: string;
+  maxViaCount?: number;
 };
 
-const NetTrace = ({ from, net, width }: NetTraceProps) => (
-  <trace from={from} to={`net.${net}`} width={width} />
+const NetTrace = ({ from, net, width, maxViaCount = 0 }: NetTraceProps) => (
+  <trace
+    from={from}
+    to={`net.${net}`}
+    width={width}
+    maxViaCount={maxViaCount}
+  />
 );
 
 const McuPlaneDecoupler = ({
@@ -269,11 +275,66 @@ const McuPlaneDecoupler = ({
     <trace
       from={`.U_MCU > .pin${targetPin}`}
       to={`.${name} > .pin1`}
-      width="0.25mm"
+      width="0.18mm"
       maxLength="10mm"
+      maxViaCount={0}
+      pcbPathRelativeTo={targetPin === 77 ? ".U_MCU > .pin77" : undefined}
+      pcbPath={
+        targetPin === 77
+          ? [
+              ".U_MCU > .pin77",
+              { x: 5.9, y: 4.025 },
+              { x: 5.9, y: 5.9 },
+              `.${name} > .pin1`,
+            ]
+          : undefined
+      }
     />
     <NetTrace from={`.${name} > .pin1`} net={powerNet} />
-    <NetTrace from={`.${name} > .pin2`} net="GND" />
+    {targetPin === 75 ? (
+      <>
+        <via
+          name="C_LDO_GND_VIA"
+          pcbX={8.3}
+          pcbY={8.2}
+          holeDiameter="0.3mm"
+          outerDiameter="0.6mm"
+          connectsTo={[".C_LDO > .pin2", "net.GND"]}
+        />
+        <trace
+          from=".C_LDO > .pin2"
+          to=".C_LDO_GND_VIA > .pin1"
+          width="0.18mm"
+          maxViaCount={0}
+          pcbPathRelativeTo=".C_LDO > .pin2"
+          pcbPath={[
+            ".C_LDO > .pin2",
+            { x: 0.59, y: 0 },
+            ".C_LDO_GND_VIA > .pin1",
+          ]}
+        />
+      </>
+    ) : targetPin === 76 ? (
+      <via
+        name="C_HP2_GND_VIA"
+        pcbX={9.2}
+        pcbY={9.3}
+        holeDiameter="0.3mm"
+        outerDiameter="0.6mm"
+        connectsTo={[".C_HP2 > .pin2", "net.GND"]}
+      />
+    ) : targetPin === 77 ? (
+      <via
+        name="C_DCDCC_GND_VIA"
+        pcbX={9.6}
+        pcbY={10.4}
+        holeDiameter="0.3mm"
+        outerDiameter="0.6mm"
+        connectsTo={[".C_DCDCC > .pin2", "net.GND"]}
+      />
+    ) : (
+      <NetTrace from={`.${name} > .pin2`} net="GND" />
+    )}
   </>
 );
 
@@ -284,6 +345,8 @@ export default () => (
     layers={4}
     minViaHoleDiameter="0.3mm"
     minViaPadDiameter="0.6mm"
+    autorouterEffortLevel="2x"
+    autorouter={{ traceClearance: "0.12mm" }}
   >
     <net name="GND" isGroundNet />
     <net name="V3V3" isPowerNet />
@@ -405,10 +468,16 @@ export default () => (
         key={`pass-${pin}`}
         from={`.J_HOST > .pin${pin}`}
         to={`.J_DISPLAY > .pin${pin}`}
-        width={pin <= 2 ? "0.6mm" : "0.25mm"}
+        width={pin <= 2 ? "0.6mm" : "0.18mm"}
+        maxViaCount={pin <= 2 ? 0 : undefined}
+        pcbPath={
+          pin <= 2
+            ? [`.J_HOST > .pin${pin}`, `.J_DISPLAY > .pin${pin}`]
+            : undefined
+        }
       />
     ))}
-    <NetTrace from=".J_HOST > .pin2" net="GND" width="0.6mm" />
+    <NetTrace from=".J_HOST > .pin2" net="GND" width="0.18mm" />
 
     <ESP32_P4NRW32X name="U_MCU" pcbX={0.5} pcbY={4.5} schHeight={10.6} />
 
@@ -592,7 +661,14 @@ export default () => (
     <NetTrace from=".U_BUF > .pin1" net="GND" />
     <NetTrace from=".U_BUF > .pin10" net="GND" />
     <NetTrace from=".U_BUF > .pin19" net="GND" />
-    <NetTrace from=".U_BUF > .pin20" net="V3V3" />
+    <via
+      name="U_BUF_V3V3_VIA"
+      pcbX={-9.2}
+      pcbY={-16.7}
+      holeDiameter="0.3mm"
+      outerDiameter="0.6mm"
+      connectsTo={[".U_BUF > .pin20", "net.V3V3"]}
+    />
     <capacitor
       name="C_BUF"
       capacitance="100nF"
@@ -615,6 +691,34 @@ export default () => (
         from={`.J_HOST > .pin${channel.headerPin}`}
         to={`.U_BUF > .pin${channel.bufferIn}`}
         width="0.18mm"
+        maxViaCount={channel.headerPin === 6 ? 2 : undefined}
+        pcbPath={
+          channel.headerPin === 6
+            ? [
+                `.J_HOST > .pin${channel.headerPin}`,
+                { x: 1.5, y: 3.81 },
+                {
+                  x: 1.5,
+                  y: 3.81,
+                  via: true,
+                  fromLayer: "top",
+                  toLayer: "inner1",
+                },
+                { x: 1.5, y: 3.81 },
+                { x: 1.5, y: -10.5 },
+                { x: 9.6, y: -12.175 },
+                {
+                  x: 9.6,
+                  y: -12.175,
+                  via: true,
+                  fromLayer: "inner1",
+                  toLayer: "top",
+                },
+                { x: 9.6, y: -12.175 },
+                `.U_BUF > .pin${channel.bufferIn}`,
+              ]
+            : undefined
+        }
       />
     ))}
     {captureChannels.map((channel) => (
@@ -623,6 +727,33 @@ export default () => (
         from={`.U_BUF > .pin${channel.bufferOut}`}
         to={`.U_MCU > .pin${channel.mcuPin}`}
         width="0.1mm"
+        maxViaCount={
+          channel.mcuPin === 6 || channel.mcuPin === 8
+            ? 0
+            : channel.mcuPin === 7
+              ? 0
+              : undefined
+        }
+        pcbPath={
+          channel.mcuPin === 6
+            ? [
+                `.U_BUF > .pin${channel.bufferOut}`,
+                { x: 0.975, y: -3.9 },
+                { x: 0.975, y: -0.1 },
+                { x: 20.925, y: -0.1 },
+                `.U_MCU > .pin${channel.mcuPin}`,
+              ]
+            : channel.mcuPin === 8
+              ? [
+                  `.U_BUF > .pin${channel.bufferOut}`,
+                  { x: -1.625, y: -4.6 },
+                  { x: 3.5, y: -4.6 },
+                  { x: 3.5, y: -0.35 },
+                  { x: 20.225, y: -0.35 },
+                  `.U_MCU > .pin${channel.mcuPin}`,
+                ]
+              : undefined
+        }
       />
     ))}
     {p4ThreeVThreeCaps.map((cap, index) => (
@@ -650,15 +781,15 @@ export default () => (
         schY={5.5}
       />
     ))}
-    <NetTrace from=".U_MCU > .pin105" net="GND" width="0.8mm" />
+    <NetTrace from=".U_MCU > .pin105" net="GND" width="0.18mm" />
 
     <capacitor
       name="C_LDO_BULK"
       capacitance="10uF"
       maxDecouplingTraceLength={10}
       footprint="0603"
-      pcbX={8.9}
-      pcbY={6.7}
+      pcbX={10.42}
+      pcbY={5.2}
       pcbRotation={-90}
       schSheetName="POWER"
       schSectionName="MCU_POWER"
@@ -669,14 +800,14 @@ export default () => (
     <trace
       from=".U_MCU > .pin75"
       to=".C_LDO_BULK > .pin1"
-      width="0.4mm"
+      width="0.18mm"
       maxLength="10mm"
     />
-    <NetTrace from=".C_LDO_BULK > .pin1" net="V3V3" width="0.4mm" />
+    <NetTrace from=".C_LDO_BULK > .pin1" net="V3V3" width="0.18mm" />
     <via
       name="C_LDO_BULK_GND_VIA"
-      pcbX={8.9}
-      pcbY={5.05}
+      pcbX={10.42}
+      pcbY={3.55}
       holeDiameter="0.3mm"
       outerDiameter="0.6mm"
       connectsTo={[".C_LDO_BULK > .pin2", "net.GND"]}
@@ -686,8 +817,8 @@ export default () => (
       capacitance="10uF"
       maxDecouplingTraceLength={10}
       footprint="0603"
-      pcbX={8.9}
-      pcbY={9.8}
+      pcbX={10.42}
+      pcbY={9.7}
       pcbRotation={90}
       schSheetName="POWER"
       schSectionName="MCU_POWER"
@@ -698,14 +829,24 @@ export default () => (
     <trace
       from=".U_MCU > .pin77"
       to=".C_DCDCC_BULK > .pin1"
-      width="0.4mm"
+      width="0.18mm"
       maxLength="10mm"
+      maxViaCount={0}
+      pcbPathRelativeTo=".U_MCU > .pin77"
+      pcbPath={[
+        ".U_MCU > .pin77",
+        { x: 6.3, y: 4.025 },
+        { x: 6.3, y: 4.25 },
+        { x: 9.1, y: 4.25 },
+        { x: 9.1, y: 4.375 },
+        ".C_DCDCC_BULK > .pin1",
+      ]}
     />
-    <NetTrace from=".C_DCDCC_BULK > .pin1" net="V3V3" width="0.4mm" />
+    <NetTrace from=".C_DCDCC_BULK > .pin1" net="V3V3" width="0.18mm" />
     <via
       name="C_DCDCC_BULK_GND_VIA"
-      pcbX={8.9}
-      pcbY={11.45}
+      pcbX={10.42}
+      pcbY={11.35}
       holeDiameter="0.3mm"
       outerDiameter="0.6mm"
       connectsTo={[".C_DCDCC_BULK > .pin2", "net.GND"]}
@@ -728,7 +869,7 @@ export default () => (
 
     <TLV62569DRLR
       name="U_CORE_BUCK"
-      pcbX={11.6}
+      pcbX={12.4}
       pcbY={7.5}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -737,7 +878,7 @@ export default () => (
     />
     <DFE201210U_2R2M_P2
       name="L_CORE"
-      pcbX={14.3}
+      pcbX={14.8}
       pcbY={7.5}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -749,7 +890,7 @@ export default () => (
       capacitance="4.7uF"
       maxDecouplingTraceLength={10}
       footprint="0603"
-      pcbX={10.8}
+      pcbX={12}
       pcbY={4.2}
       pcbRotation={-90}
       schSheetName="POWER"
@@ -775,7 +916,7 @@ export default () => (
       name="R_CORE_TOP"
       resistance="499kohm"
       footprint="0402"
-      pcbX={12.5}
+      pcbX={12.4}
       pcbY={10.5}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -786,7 +927,7 @@ export default () => (
       name="R_CORE_BOT"
       resistance="499kohm"
       footprint="0402"
-      pcbX={14.5}
+      pcbX={14.4}
       pcbY={10.5}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -798,7 +939,7 @@ export default () => (
       capacitance="22pF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={13.5}
+      pcbX={13.4}
       pcbY={12}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -807,22 +948,28 @@ export default () => (
       schOrientation="vertical"
     />
     <trace from=".U_CORE_BUCK > .pin3" to=".C_CORE_IN > .pin1" width="0.18mm" />
-    <NetTrace from=".C_CORE_IN > .pin1" net="V3V3" width="0.4mm" />
+    <NetTrace from=".C_CORE_IN > .pin1" net="V3V3" width="0.18mm" />
     <NetTrace from=".U_CORE_BUCK > .pin2" net="GND" width="0.15mm" />
     <NetTrace from=".U_CORE_BUCK > .pin6" net="GND" width="0.15mm" />
     <NetTrace from=".C_CORE_IN > .pin2" net="GND" />
     <trace from=".U_MCU > .pin79" to=".U_CORE_BUCK > .pin5" width="0.15mm" />
     <trace from=".U_MCU > .pin78" to=".U_CORE_BUCK > .pin1" width="0.15mm" />
     <trace from=".U_CORE_BUCK > .pin4" to=".L_CORE > .pin1" width="0.18mm" />
-    <trace from=".L_CORE > .pin2" to=".C_CORE_OUT > .pin1" width="0.5mm" />
+    <trace
+      from=".L_CORE > .pin2"
+      to=".C_CORE_OUT > .pin1"
+      width="0.5mm"
+      maxViaCount={0}
+      pcbPath={[".L_CORE > .pin2", ".C_CORE_OUT > .pin1"]}
+    />
     <trace from=".L_CORE > .pin2" to=".R_CORE_TOP > .pin1" />
     <trace from=".R_CORE_TOP > .pin2" to=".R_CORE_BOT > .pin1" />
     <trace from=".R_CORE_TOP > .pin2" to=".U_MCU > .pin78" />
     <trace from=".C_CORE_FB > .pin1" to=".R_CORE_TOP > .pin1" />
     <trace from=".C_CORE_FB > .pin2" to=".R_CORE_TOP > .pin2" />
     <NetTrace from=".R_CORE_BOT > .pin2" net="GND" />
-    <NetTrace from=".C_CORE_OUT > .pin1" net="V1V2" width="0.5mm" />
-    <NetTrace from=".C_CORE_OUT > .pin2" net="GND" width="0.5mm" />
+    <NetTrace from=".C_CORE_OUT > .pin1" net="V1V2" width="0.18mm" />
+    <NetTrace from=".C_CORE_OUT > .pin2" net="GND" width="0.18mm" />
 
     <W25Q128JVSIQ
       name="U_FLASH"
@@ -840,8 +987,8 @@ export default () => (
     <trace from=".U_FLASH > .pin5" to=".U_MCU > .pin33" width="0.1mm" />
     <trace from=".U_FLASH > .pin6" to=".U_MCU > .pin32" width="0.1mm" />
     <trace from=".U_FLASH > .pin7" to=".U_MCU > .pin31" width="0.1mm" />
-    <trace from=".U_MCU > .pin71" to=".U_MCU > .pin30" width="0.3mm" />
-    <trace from=".U_MCU > .pin30" to=".U_FLASH > .pin8" width="0.3mm" />
+    <trace from=".U_MCU > .pin71" to=".U_MCU > .pin30" width="0.18mm" />
+    <trace from=".U_MCU > .pin30" to=".U_FLASH > .pin8" width="0.18mm" />
     <resistor
       name="R_FLASH_CS"
       resistance="10kohm"
@@ -876,7 +1023,7 @@ export default () => (
       capacitance="1uF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={2}
+      pcbX={1.2}
       pcbY={-2.7}
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
@@ -884,7 +1031,12 @@ export default () => (
       schY={-4}
       schOrientation="vertical"
     />
-    <trace from=".C_FLASHIO_1U > .pin1" to=".U_MCU > .pin30" width="0.1mm" />
+    <trace
+      from=".C_FLASHIO_1U > .pin1"
+      to=".U_MCU > .pin30"
+      width="0.1mm"
+      maxViaCount={0}
+    />
     <NetTrace from=".C_FLASHIO_1U > .pin2" net="GND" />
 
     <E3SB40E000030E
@@ -961,9 +1113,9 @@ export default () => (
     <trace from=".U_MCU > .pin72" to=".U_MCU > .pin59" />
     <trace from=".U_MCU > .pin72" to=".U_MCU > .pin67" />
     {[
-      { name: "C_PSRAM0", x: 9.5, y: 0.5, value: "100nF", target: 59 },
-      { name: "C_PSRAM1", x: 11.5, y: 1.5, value: "100nF", target: 67 },
-      { name: "C_PSRAM_BULK", x: 13.5, y: 2.5, value: "1uF", target: 72 },
+      { name: "C_PSRAM0", x: 8.1, y: 2.2, value: "100nF", target: 59 },
+      { name: "C_PSRAM1", x: 7.75, y: 5.0, value: "100nF", target: 67 },
+      { name: "C_PSRAM_BULK", x: 10.4, y: 1.5, value: "1uF", target: 72 },
     ].map((cap, index) => (
       <Fragment key={cap.name}>
         <capacitor
@@ -982,6 +1134,7 @@ export default () => (
         <trace
           from={`.${cap.name} > .pin1`}
           to={`.U_MCU > .pin${cap.target}`}
+          maxViaCount={0}
         />
         <NetTrace from={`.${cap.name} > .pin2`} net="GND" />
       </Fragment>
@@ -991,8 +1144,9 @@ export default () => (
       capacitance="1uF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={7.1}
-      pcbY={5.45}
+      pcbX={9.2}
+      pcbY={5.75}
+      pcbRotation={-90}
       schSheetName="POWER"
       schSectionName="MCU_POWER"
       schX={8.4}
@@ -1004,17 +1158,49 @@ export default () => (
       capacitance="1uF"
       maxDecouplingTraceLength={10}
       footprint="0402"
-      pcbX={7.1}
-      pcbY={6.6}
+      pcbX={9.05}
+      pcbY={7.65}
+      pcbRotation={-90}
       schSheetName="POWER"
       schSectionName="MCU_POWER"
       schX={11.2}
       schY={5.5}
       schOrientation="vertical"
     />
-    <trace from=".C_VOUT3 > .pin1" to=".U_MCU > .pin73" maxLength="6mm" />
-    <trace from=".C_VOUT4 > .pin1" to=".U_MCU > .pin74" maxLength="6mm" />
-    <NetTrace from=".C_VOUT3 > .pin2" net="GND" />
+    <trace
+      from=".C_VOUT3 > .pin1"
+      to=".U_MCU > .pin73"
+      maxLength="6mm"
+      maxViaCount={0}
+      pcbPath={[
+        ".C_VOUT3 > .pin1",
+        { x: -0.56, y: -2.6 },
+        { x: -1.375, y: -2.6 },
+        ".U_MCU > .pin73",
+      ]}
+    />
+    <trace
+      from=".C_VOUT4 > .pin1"
+      to=".U_MCU > .pin74"
+      maxLength="6mm"
+      maxViaCount={0}
+      pcbPath={[
+        ".C_VOUT4 > .pin1",
+        { x: -0.51, y: 0.7 },
+        { x: 0.05, y: 0.7 },
+        { x: 0.05, y: -2.35 },
+        ".U_MCU > .pin74",
+      ]}
+    />
+    {/* Keep the VOUT3 return on the existing C_LDO ground via to avoid a
+        ground-via collision with the adjacent V3V3 escape. */}
+    <trace
+      name="C_VOUT3_GND_RETURN"
+      from=".C_VOUT3 > .pin2"
+      to=".C_LDO_GND_VIA > .pin1"
+      width="0.18mm"
+      maxViaCount={0}
+    />
     <NetTrace from=".C_VOUT4 > .pin2" net="GND" />
 
     <resistor
@@ -1029,7 +1215,20 @@ export default () => (
       schY={2.5}
     />
     <NetTrace from=".R_USBPHY > .pin1" net="V3V3" />
-    <trace from=".R_USBPHY > .pin2" to=".U_MCU > .pin51" />
+    <trace
+      from=".R_USBPHY > .pin2"
+      to=".U_MCU > .pin51"
+      maxViaCount={0}
+      pcbPath={[
+        ".R_USBPHY > .pin2",
+        { x: 1.5, y: 0 },
+        { x: 1.5, y: 0.5 },
+        { x: -2.4, y: 0.5 },
+        { x: -2.4, y: 2.8 },
+        { x: -3.475, y: 2.8 },
+        ".U_MCU > .pin51",
+      ]}
+    />
     {[
       { name: "C_USBPHY_10N", value: "10nF", x: 8.5, y: -5.5 },
       { name: "C_USBPHY_100N", value: "100nF", x: 10.5, y: -5.5 },
@@ -1049,7 +1248,11 @@ export default () => (
           schY={2.5}
           schOrientation="vertical"
         />
-        <trace from={`.${cap.name} > .pin1`} to=".U_MCU > .pin51" />
+        <trace
+          from={`.${cap.name} > .pin1`}
+          to=".R_USBPHY > .pin2"
+          maxViaCount={0}
+        />
         {index === 2 ? (
           <NetTrace from={`.${cap.name} > .pin2`} net="GND" />
         ) : index === 0 ? (
@@ -1089,8 +1292,8 @@ export default () => (
       name="R_USB_DP"
       resistance="27ohm"
       footprint="0402"
-      pcbX={4.65}
-      pcbY={-2}
+      pcbX={5}
+      pcbY={-2.3}
       pcbRotation={90}
       schSheetName="SIGNALS"
       schSectionName="USB"
@@ -1101,8 +1304,8 @@ export default () => (
       name="R_USB_DM"
       resistance="27ohm"
       footprint="0402"
-      pcbX={3.65}
-      pcbY={-2}
+      pcbX={2.7}
+      pcbY={-2.3}
       pcbRotation={90}
       schSheetName="SIGNALS"
       schSectionName="USB"
@@ -1146,7 +1349,7 @@ export default () => (
       width="0.1mm"
       maxViaCount={0}
       pcbPathRelativeTo=".R_USB_DM > .pin2"
-      pcbPath={[".R_USB_DM > .pin2", { x: 0.8, y: -0.175 }, ".U_MCU > .pin49"]}
+      pcbPath={[".R_USB_DM > .pin2", { x: 1.1, y: -1.125 }, ".U_MCU > .pin49"]}
     />
     <trace
       name="USB_HS_DP_MCU"
@@ -1155,7 +1358,7 @@ export default () => (
       width="0.1mm"
       maxViaCount={0}
       pcbPathRelativeTo=".R_USB_DP > .pin2"
-      pcbPath={[".R_USB_DP > .pin2", { x: 0.8, y: 0.475 }, ".U_MCU > .pin50"]}
+      pcbPath={[".R_USB_DP > .pin2", { x: 1.1, y: 0.825 }, ".U_MCU > .pin50"]}
     />
     <SKRPACE010
       name="SW_BOOT"
@@ -1185,16 +1388,42 @@ export default () => (
       name="R_GPIO36_PU"
       resistance="10kohm"
       footprint="0402"
-      pcbX={7.2}
-      pcbY={4}
-      pcbRotation={90}
+      pcbX={13.5}
+      pcbY={1.8}
       schSheetName="SIGNALS"
       schSectionName="USB"
       schX={8}
       schY={6}
     />
     <NetTrace from=".R_GPIO36_PU > .pin1" net="V3V3" />
-    <trace from=".R_GPIO36_PU > .pin2" to=".U_MCU > .pin68" />
+    <trace
+      from=".R_GPIO36_PU > .pin2"
+      to=".U_MCU > .pin68"
+      maxViaCount={2}
+      pcbPath={[
+        ".R_GPIO36_PU > .pin2",
+        { x: 1.5, y: 0 },
+        {
+          x: 1.5,
+          y: 0,
+          via: true,
+          fromLayer: "top",
+          toLayer: "inner1",
+        },
+        { x: 1.5, y: 0 },
+        { x: 1.5, y: 3.575 },
+        { x: -7.1, y: 3.575 },
+        {
+          x: -7.1,
+          y: 3.575,
+          via: true,
+          fromLayer: "inner1",
+          toLayer: "top",
+        },
+        { x: -7.1, y: 3.575 },
+        ".U_MCU > .pin68",
+      ]}
+    />
 
     <SKRPACE010
       name="SW_RESET"
@@ -1238,7 +1467,7 @@ export default () => (
 
     <SmdUsbCWithFixedSchematic
       name="J_USB"
-      pcbX={2.35}
+      pcbX={2.95}
       pcbY={-15.46}
       schSheetName="SIGNALS"
       schSectionName="USB"
@@ -1247,16 +1476,28 @@ export default () => (
       schWidth={1.575}
       schHeight={2.6}
     />
-    <trace from=".J_USB > .pin2" to=".J_USB > .pin1" width="0.5mm" />
-    <trace from=".J_USB > .pin16" to=".J_USB > .pin15" width="0.5mm" />
-    <NetTrace from=".J_USB > .pin1" net="GND" width="0.5mm" />
-    <NetTrace from=".J_USB > .pin15" net="GND" width="0.5mm" />
+    <trace
+      from=".J_USB > .pin2"
+      to=".J_USB > .pin1"
+      width="0.5mm"
+      maxViaCount={0}
+      pcbPath={[".J_USB > .pin2", ".J_USB > .pin1"]}
+    />
+    <trace
+      from=".J_USB > .pin16"
+      to=".J_USB > .pin15"
+      width="0.5mm"
+      maxViaCount={0}
+      pcbPath={[".J_USB > .pin16", ".J_USB > .pin15"]}
+    />
+    <NetTrace from=".J_USB > .pin1" net="GND" width="0.18mm" />
+    <NetTrace from=".J_USB > .pin15" net="GND" width="0.18mm" />
     {[17, 18, 19, 20].map((pin) => (
       <NetTrace
         key={`usb-shield-gnd-${pin}`}
         from={`.J_USB > .pin${pin}`}
         net="GND"
-        width="0.5mm"
+        width="0.18mm"
       />
     ))}
     {[3, 4, 13, 14].map((pin) => (
@@ -1264,7 +1505,7 @@ export default () => (
         key={`usb-vbus-${pin}`}
         from={`.J_USB > .pin${pin}`}
         net="VBUS"
-        width="0.6mm"
+        width="0.18mm"
       />
     ))}
     <resistor
@@ -1290,15 +1531,48 @@ export default () => (
       schY={-6.3}
     />
     <trace from=".J_USB > .pin6" to=".R_CC1 > .pin1" />
-    <NetTrace from=".R_CC1 > .pin2" net="GND" />
-    <trace from=".J_USB > .pin12" to=".R_CC2 > .pin1" />
-    <NetTrace from=".R_CC2 > .pin2" net="GND" />
+    <via
+      name="R_CC1_GND_VIA"
+      pcbX={-2.8}
+      pcbY={-18.5}
+      holeDiameter="0.3mm"
+      outerDiameter="0.6mm"
+      connectsTo={[".R_CC1 > .pin2", "net.GND"]}
+    />
+    <trace
+      from=".J_USB > .pin12"
+      to=".R_CC2 > .pin1"
+      maxViaCount={0}
+      pcbPath={[
+        ".J_USB > .pin12",
+        { x: 1.15, y: -1.34 },
+        { x: -5.95, y: -1.34 },
+        { x: -5.95, y: -1.84 },
+        { x: -9.96, y: -1.84 },
+        ".R_CC2 > .pin1",
+      ]}
+    />
+    <via
+      name="R_CC2_GND_VIA"
+      pcbX={-8.2}
+      pcbY={-18.5}
+      holeDiameter="0.3mm"
+      outerDiameter="0.6mm"
+      connectsTo={[".R_CC2 > .pin2", "net.GND"]}
+    />
     <NetTrace from=".U_ESD > .pin2" net="GND" />
-    <NetTrace from=".U_ESD > .pin5" net="VBUS" />
+    <via
+      name="U_ESD_VBUS_VIA"
+      pcbX={6.8}
+      pcbY={-11.7}
+      holeDiameter="0.3mm"
+      outerDiameter="0.6mm"
+      connectsTo={[".U_ESD > .pin5", "net.VBUS"]}
+    />
 
     <TLV62569DRLR
       name="U_3V3_BUCK"
-      pcbX={9.05}
+      pcbX={9.4}
       pcbY={-13}
       schSheetName="POWER"
       schSectionName="THREE_VOLT_POWER"
@@ -1378,20 +1652,26 @@ export default () => (
     />
     <trace from=".U_3V3_BUCK > .pin3" to=".C_3V3_IN > .pin1" width="0.18mm" />
     <NetTrace from=".U_3V3_BUCK > .pin5" net="VBUS" width="0.15mm" />
-    <NetTrace from=".C_3V3_IN > .pin1" net="VBUS" width="0.6mm" />
+    <NetTrace from=".C_3V3_IN > .pin1" net="VBUS" width="0.18mm" />
     <NetTrace from=".U_3V3_BUCK > .pin2" net="GND" width="0.15mm" />
     <NetTrace from=".U_3V3_BUCK > .pin6" net="GND" width="0.15mm" />
     <NetTrace from=".C_3V3_IN > .pin2" net="GND" />
     <trace from=".U_3V3_BUCK > .pin4" to=".L_3V3 > .pin1" width="0.18mm" />
-    <trace from=".L_3V3 > .pin2" to=".C_3V3_OUT > .pin1" width="0.6mm" />
+    <trace
+      from=".L_3V3 > .pin2"
+      to=".C_3V3_OUT > .pin1"
+      width="0.6mm"
+      maxViaCount={0}
+      pcbPath={[".L_3V3 > .pin2", ".C_3V3_OUT > .pin1"]}
+    />
     <trace from=".L_3V3 > .pin2" to=".R_3V3_TOP > .pin1" />
     <trace from=".R_3V3_TOP > .pin2" to=".R_3V3_BOT > .pin1" />
     <trace from=".R_3V3_TOP > .pin2" to=".U_3V3_BUCK > .pin1" width="0.15mm" />
     <trace from=".C_3V3_FB > .pin1" to=".R_3V3_TOP > .pin1" />
     <trace from=".C_3V3_FB > .pin2" to=".R_3V3_TOP > .pin2" />
     <NetTrace from=".R_3V3_BOT > .pin2" net="GND" />
-    <NetTrace from=".C_3V3_OUT > .pin1" net="V3V3" width="0.6mm" />
-    <NetTrace from=".C_3V3_OUT > .pin2" net="GND" width="0.6mm" />
+    <NetTrace from=".C_3V3_OUT > .pin1" net="V3V3" width="0.18mm" />
+    <NetTrace from=".C_3V3_OUT > .pin2" net="GND" width="0.18mm" />
     <silkscreentext
       text="ESP32-P4 SPI DISPLAY UVC CAPTURE"
       pcbX={17.3}
