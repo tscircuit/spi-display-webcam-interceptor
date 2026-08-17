@@ -878,7 +878,7 @@ export default () => (
     />
     <DFE201210U_2R2M_P2
       name="L_CORE"
-      pcbX={14.8}
+      pcbX={15.8}
       pcbY={7.5}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
@@ -905,7 +905,7 @@ export default () => (
       maxDecouplingTraceLength={10}
       footprint="0805"
       pcbX={16}
-      pcbY={6}
+      pcbY={4.5}
       schSheetName="POWER"
       schSectionName="CORE_POWER"
       schX={-3}
@@ -1581,7 +1581,7 @@ export default () => (
     />
     <DFE201210U_2R2M_P2
       name="L_3V3"
-      pcbX={12}
+      pcbX={12.8}
       pcbY={-13}
       schSheetName="POWER"
       schSectionName="THREE_VOLT_POWER"
@@ -1608,7 +1608,7 @@ export default () => (
       maxDecouplingTraceLength={10}
       footprint="0805"
       pcbX={16}
-      pcbY={-13}
+      pcbY={-15.5}
       schSheetName="POWER"
       schSectionName="THREE_VOLT_POWER"
       schX={11}
