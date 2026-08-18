@@ -219,6 +219,9 @@ export const ESP32_P4NRW32X = (props: ChipProps<typeof pinLabels>) => {
       pinLabels={pinLabels}
       pinAttributes={pinAttributes}
       supplierPartNumbers={{
+        // C54540373 is the current JLCPCB listing for the ESP32-P4NRW32X.
+        // Do not substitute the older ESP32-P4NRW32 (C22387510): Espressif
+        // identifies that revision as EOL and notes a pin-definition change.
         jlcpcb: ["C54540373"],
       }}
       manufacturerPartNumber="ESP32_P4NRW32X"

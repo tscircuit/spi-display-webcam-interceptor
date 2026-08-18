@@ -115,8 +115,8 @@ const engineeringBom = [
     "Value",
     "Footprint",
     "Manufacturer Part Number",
-    "Primary LCSC Part Number",
-    "Alternate LCSC Part Numbers",
+    "Primary JLCPCB Part Number",
+    "Alternate JLCPCB Part Numbers",
   ],
   ...bomRows.map((row) => [
     row.designators.join(" "),
@@ -132,7 +132,7 @@ const engineeringBom = [
   .join("\n");
 
 const jlcBom = [
-  ["Comment", "Designator", "Footprint", "LCSC Part #"],
+  ["Comment", "Designator", "Footprint", "JLCPCB Part #"],
   ...bomRows.map((row) => [
     row.value,
     row.designators.join(","),

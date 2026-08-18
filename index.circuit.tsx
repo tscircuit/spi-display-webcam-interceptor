@@ -11,6 +11,13 @@ import { USBLC6_2SC6 } from "./imports/USBLC6_2SC6";
 import { W25Q128JVSIQ } from "./imports/W25Q128JVSIQ";
 import routingSolution from "./routing.json";
 
+// Keep the JLCPCB alternatives explicit for the resistor values where the
+// parts engine previously returned stale catalog entries. These are all
+// 0402, ±1% parts with the same resistance and verified current listings.
+const jlcResistor10k = ["C25744", "C60490", "C2906861"];
+const jlcResistor499k = ["C2998054", "C25793", "C49653214"];
+const jlcResistor453k = ["C27009", "C3013172", "C3025678"];
+
 const sameCoordinate = (a: number, b: number) => Math.abs(a - b) < 1e-6;
 
 const adjustedManufacturingRoutes = routingSolution.traces.map((trace) => ({
@@ -529,7 +536,7 @@ export default () => (
       pinCount={14}
       pitch="2.54mm"
       gender="female"
-      supplierPartNumbers={{ jlcpcb: ["C2897377"] }}
+      supplierPartNumbers={{ jlcpcb: ["C2897377", "C2905420"] }}
       manufacturerPartNumber="PM254-1-14-Z-8.5"
       footprint={<DisplayHeaderFootprint />}
       cadModel={{
@@ -1034,6 +1041,7 @@ export default () => (
       name="R_CORE_TOP"
       resistance="499kohm"
       footprint="0402"
+      supplierPartNumbers={{ jlcpcb: jlcResistor499k }}
       pcbX={12.4}
       pcbY={10.5}
       schSheetName="POWER"
@@ -1045,6 +1053,7 @@ export default () => (
       name="R_CORE_BOT"
       resistance="499kohm"
       footprint="0402"
+      supplierPartNumbers={{ jlcpcb: jlcResistor499k }}
       pcbX={14.4}
       pcbY={10.5}
       schSheetName="POWER"
@@ -1111,6 +1120,7 @@ export default () => (
       name="R_FLASH_CS"
       resistance="10kohm"
       footprint="0402"
+      supplierPartNumbers={{ jlcpcb: jlcResistor10k }}
       pcbX={-0.8}
       pcbY={-11}
       schSheetName="SIGNALS"
@@ -1491,6 +1501,7 @@ export default () => (
       name="R_BOOT_PU"
       resistance="10kohm"
       footprint="0402"
+      supplierPartNumbers={{ jlcpcb: jlcResistor10k }}
       pcbX={13.3}
       pcbY={14}
       schSheetName="SIGNALS"
@@ -1506,6 +1517,7 @@ export default () => (
       name="R_GPIO36_PU"
       resistance="10kohm"
       footprint="0402"
+      supplierPartNumbers={{ jlcpcb: jlcResistor10k }}
       pcbX={13.5}
       pcbY={1.8}
       schSheetName="SIGNALS"
@@ -1556,6 +1568,7 @@ export default () => (
       name="R_RESET_PU"
       resistance="10kohm"
       footprint="0402"
+      supplierPartNumbers={{ jlcpcb: jlcResistor10k }}
       pcbX={7.2}
       pcbY={14}
       schSheetName="SIGNALS"
@@ -1737,6 +1750,7 @@ export default () => (
       name="R_3V3_TOP"
       resistance="453kohm"
       footprint="0402"
+      supplierPartNumbers={{ jlcpcb: jlcResistor453k }}
       pcbX={12}
       pcbY={-10.7}
       schSheetName="POWER"
