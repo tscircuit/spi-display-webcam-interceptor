@@ -3,8 +3,12 @@ import { readFile, writeFile } from "node:fs/promises";
 type CircuitElement = Record<string, any>;
 
 const circuitPath = "dist/index/circuit.json";
-const outputDirectory =
-  "outputs/fabrication/spi-display-webcam-interceptor-v1.0.0";
+const packageMetadata = JSON.parse(await readFile("package.json", "utf8")) as {
+  version?: string;
+};
+const outputDirectory = `outputs/fabrication/spi-display-webcam-interceptor-v${
+  packageMetadata.version ?? "unknown"
+}`;
 
 const circuit = JSON.parse(await readFile(circuitPath, "utf8")) as CircuitElement[];
 const sources = circuit.filter((element) => element.type === "source_component");
