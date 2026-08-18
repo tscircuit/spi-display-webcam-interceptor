@@ -19,10 +19,10 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@tscircuit/capacity-autorouter": "0.0.807",
+    "@tscircuit/capacity-autorouter": "0.0.817",
     "@types/node": "^26.2.0",
     "@types/react": "^19.2.18",
-    "tscircuit": "^0.0.2350",
+    "tscircuit": "^0.0.2354",
     "typescript": "^5.0.0"
   },
   "author": "seveibar",
@@ -30,6 +30,6 @@
     "@tsci/seveibar.smd-usb-c": "^0.0.2"
   },
   "overrides": {
-    "@tscircuit/capacity-autorouter": "0.0.807"
+    "@tscircuit/capacity-autorouter": "0.0.817"
   }
 }

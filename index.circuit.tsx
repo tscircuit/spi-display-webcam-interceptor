@@ -9,6 +9,119 @@ import { SN74LVC244APWR } from "./imports/SN74LVC244APWR";
 import { TLV62569DRLR } from "./imports/TLV62569DRLR";
 import { USBLC6_2SC6 } from "./imports/USBLC6_2SC6";
 import { W25Q128JVSIQ } from "./imports/W25Q128JVSIQ";
+import routingSolution from "./routing.json";
+
+const sameCoordinate = (a: number, b: number) => Math.abs(a - b) < 1e-6;
+
+const adjustedManufacturingRoutes = routingSolution.traces.map((trace) => ({
+  ...trace,
+  route: trace.route.map((point) => {
+    const { pcb_trace_id: traceId } = trace;
+    if (point.x === undefined || point.y === undefined) return point;
+
+    // Separate the GPIO3/GPIO4 fanout traces where their simplified paths
+    // came within 0.08 mm of one another.
+    if (traceId === "source_trace_32_0") {
+      if (
+        sameCoordinate(point.x, -5.405161562950456) &&
+        sameCoordinate(point.y, 7.979797334841687)
+      ) {
+        return { ...point, y: 7.949797334841687 };
+      }
+      if (
+        sameCoordinate(point.x, -5.103099546460042) &&
+        sameCoordinate(point.y, 7.96541620221355)
+      ) {
+        return { ...point, y: 7.93541620221355 };
+      }
+    }
+
+    // Keep the shared button ground trace above SW_RESET's unconnected
+    // duplicate solder pad.
+    if (
+      traceId === "source_trace_136__source_net_0_mst45_0" &&
+      sameCoordinate(point.y, 18.10506536874412)
+    ) {
+      return { ...point, y: 18.13506536874412 };
+    }
+
+    // Move the V3V3 link away from GPIO43 along the top edge of U_MCU.
+    if (
+      traceId ===
+        "source_trace_19__source_trace_37__source_trace_40__source_trace_43__source_trace_46__source_trace_49__source_trace_52__source_trace_59__source_trace_62__source_trace_78__source_trace_84__source_trace_86__source_trace_192__source_trace_195__source_net_1_mst13_0" &&
+      point.x > 2.88 &&
+      point.x < 2.91
+    ) {
+      return { ...point, x: 2.8 };
+    }
+
+    // Bow the GPIO5 inner-layer segment around the existing GPIO7 via.
+    if (
+      traceId === "source_trace_33_0" &&
+      sameCoordinate(point.x, -5.026442511114322) &&
+      sameCoordinate(point.y, 7.457722681175604)
+    ) {
+      return { ...point, x: -5.3, y: 7.45 };
+    }
+
+    // Give the PSRAM decoupling via more room outside the GPIO34 pad.
+    if (
+      traceId ===
+        "source_trace_126__source_trace_127__source_trace_128__source_trace_130__source_trace_132_mst0_0" &&
+      sameCoordinate(point.x, 6.19058496529081) &&
+      sameCoordinate(point.y, 4.298298490400989)
+    ) {
+      return { ...point, x: 6.25 };
+    }
+
+    // Center the V1V2 via in the narrow channel between the exposed GND pad
+    // and the same-net VDD_HP_2 lead.
+    if (
+      traceId ===
+        "source_trace_65__source_trace_68__source_trace_71__source_trace_74__source_trace_95__source_trace_98__source_net_3_mst8_0" &&
+      sameCoordinate(point.x, 4.549993499999999) &&
+      sameCoordinate(point.y, 7.949992)
+    ) {
+      return { ...point, x: 4.7 };
+    }
+
+    // Reuse the explicitly placed C_LDO ground via instead of dropping a
+    // second autorouted via only 0.125 mm away.
+    if (
+      traceId === "source_trace_136__source_net_0_mst53_0" &&
+      sameCoordinate(point.x, 8.3) &&
+      sameCoordinate(point.y, 8.075)
+    ) {
+      if (point.route_type === "via") {
+        return {
+          route_type: "through_pad" as const,
+          start: { x: 8.3, y: 8.2 },
+          end: { x: 8.3, y: 8.2 },
+          start_layer: "inner1" as const,
+          end_layer: "top" as const,
+          width: 0.18,
+        };
+      }
+      return { ...point, x: 8.3, y: 8.2 };
+    }
+
+    return point;
+  }),
+}));
+
+const createFrozenManufacturingAutorouter = async () => {
+  const handlers: Record<string, (event: any) => void> = {};
+
+  return {
+    on(eventName: string, handler: (event: any) => void) {
+      handlers[eventName] = handler;
+    },
+    start() {
+      handlers.complete?.({ traces: adjustedManufacturingRoutes });
+    },
+    stop() {},
+  };
+};
 
 type SmdUsbCProps = Parameters<typeof SmdUsbC>[0];
 
@@ -340,13 +453,16 @@ const McuPlaneDecoupler = ({
 
 export default () => (
   <board
-    width="35.7mm"
+    width="35.8mm"
     height="38.74mm"
     layers={4}
     minViaHoleDiameter="0.3mm"
     minViaPadDiameter="0.6mm"
-    autorouterEffortLevel="2x"
-    autorouter={{ traceClearance: "0.12mm" }}
+    autorouterEffortLevel="1x"
+    autorouter={{
+      traceClearance: "0.12mm",
+      algorithmFn: createFrozenManufacturingAutorouter,
+    }}
   >
     <net name="GND" isGroundNet />
     <net name="V3V3" isPowerNet />
