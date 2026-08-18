@@ -1,6 +1,6 @@
 {
   "name": "@tsci/seveibar.spi-display-webcam-interceptor",
-  "version": "1.0.0",
+  "version": "1.0.10",
   "description": "ESP32-P4 SPI display pass-through and USB UVC webcam interceptor",
   "main": "index.tsx",
   "keywords": [
