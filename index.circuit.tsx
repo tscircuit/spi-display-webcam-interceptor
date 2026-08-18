@@ -569,6 +569,7 @@ export default () => (
       }}
       pcbX={-12.8}
       pcbY={0}
+      layer="bottom"
       schSheetName="SIGNALS"
       schSectionName="CAPTURE_MEMORY"
       schX={-10.5}
