@@ -64,14 +64,15 @@ const adjustedManufacturingRoutes = routingSolution.traces.map((trace) => ({
       return { ...point, x: -5.3, y: 7.45 };
     }
 
-    // Give the PSRAM decoupling via more room outside the GPIO34 pad.
+    // Give the PSRAM decoupling via more room outside the GPIO34 pad and the
+    // neighboring GPIO35/BOOT route.
     if (
       traceId ===
         "source_trace_126__source_trace_127__source_trace_128__source_trace_130__source_trace_132_mst0_0" &&
       sameCoordinate(point.x, 6.19058496529081) &&
       sameCoordinate(point.y, 4.298298490400989)
     ) {
-      return { ...point, x: 6.25 };
+      return { ...point, x: 6.25, y: 4.25 };
     }
 
     // Center the V1V2 via in the narrow channel between the exposed GND pad
